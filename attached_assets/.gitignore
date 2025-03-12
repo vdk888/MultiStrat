@@ -1,0 +1,20 @@
+# Python specific
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+
+# Virtual environment
+venv/
+.venv/
+
+# Environment files
+.env
+
+# IDE specific
+.vscode/
+.idea/
+
+# Local development
+*.log
+*.sqlite3

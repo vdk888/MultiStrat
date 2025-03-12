@@ -1,0 +1,254 @@
+# Homogeneous Asset Groups
+
+## Group 1: Major US Equity Market Indices
+1. SPY - SPDR S&P 500 ETF Trust (S&P 500)
+2. QQQ - Invesco QQQ Trust (Nasdaq-100)
+3. DIA - SPDR Dow Jones Industrial Average ETF
+4. IWM - iShares Russell 2000 ETF (Small Cap)
+5. VTI - Vanguard Total Stock Market ETF
+6. RSP - Invesco S&P 500 Equal Weight ETF
+7. IJH - iShares Core S&P Mid-Cap ETF
+8. OEF - iShares S&P 100 ETF (Large Cap)
+9. VB - Vanguard Small-Cap ETF
+10. VO - Vanguard Mid-Cap ETF
+11. MAGS - Roundhill Magnificent Seven ETF
+12. ESGU - iShares ESG Aware MSCI USA ETF (ESG US)
+
+## Group 2: US Equity Styles
+1. VUG - Vanguard Growth ETF
+2. VTV - Vanguard Value ETF
+3. SPLV - Invesco S&P 500 Low Volatility ETF
+4. SPHQ - Invesco S&P 500 Quality ETF
+5. MOAT - VanEck Morningstar Wide Moat ETF
+6. SPMO - Invesco S&P 500 Momentum ETF
+7. COWZ - Pacer US Cash Cows 100 ETF
+8. IWO - iShares Russell 2000 Growth ETF (Small Cap Growth)
+9. IWN - iShares Russell 2000 Value ETF (Small Cap Value)
+10. AVUV - Avantis U.S. Small Cap Value ETF
+11. VOT - Vanguard Mid-Cap Growth ETF
+12. MGK - Vanguard Mega Cap Growth ETF
+
+## Group 3: US Sector ETFs
+1. XLF - Financial Select Sector SPDR Fund
+2. XLK - Technology Select Sector SPDR Fund
+3. XLE - Energy Select Sector SPDR Fund
+4. XLV - Health Care Select Sector SPDR Fund
+5. XLI - Industrial Select Sector SPDR Fund
+6. XLP - Consumer Staples Select Sector SPDR Fund
+7. XLY - Consumer Discretionary Select Sector SPDR Fund
+8. XLU - Utilities Select Sector SPDR Fund
+9. XLC - Communication Services Select Sector SPDR Fund
+10. XLRE - Real Estate Select Sector SPDR Fund
+11. KRE - SPDR S&P Regional Banking ETF
+12. SMH - VanEck Semiconductor ETF
+13. XOP - SPDR S&P Oil & Gas Exploration & Production ETF
+
+## Group 4: Thematic & Industry ETFs
+1. ARKK - ARK Innovation ETF
+2. CIBR - First Trust NASDAQ Cybersecurity ETF
+3. ITB - iShares U.S. Home Construction ETF
+4. FDN - First Trust Dow Jones Internet Index Fund ETF
+5. ITA - iShares U.S. Aerospace & Defense ETF
+6. PAVE - Global X U.S. Infrastructure Development ETF
+7. XME - SPDR S&P Metals & Mining ETF
+8. IGV - iShares Expanded Tech-Software Sector ETF
+9. ARKG - ARK Genomic Revolution ETF
+10. VNQ - Vanguard Real Estate ETF (US Real Estate)
+11. SCHH - Schwab U.S. REIT ETF
+
+## Group 5: Dividend & Income Equity
+1. SCHD - Schwab US Dividend Equity ETF
+2. VIG - Vanguard Dividend Appreciation ETF
+3. VYM - Vanguard High Dividend Yield ETF
+4. DGRO - iShares Core Dividend Growth ETF
+5. RDVY - First Trust Rising Dividend Achievers ETF
+6. NOBL - ProShares S&P 500 Dividend Aristocrats ETF
+7. JEPI - JPMorgan Equity Premium Income ETF
+8. JEPQ - JPMorgan Nasdaq Equity Premium Income ETF
+9. QYLD - Global X NASDAQ-100 Covered Call ETF
+10. SPYI - NEOS S&P 500 High Income ETF
+11. DSI - iShares MSCI KLD 400 Social ETF
+12. SUSA - iShares MSCI USA ESG Select ETF
+
+## Group 6: Developed International Markets
+1. EFA - iShares MSCI EAFE ETF (Developed International)
+2. VEA - Vanguard FTSE Developed Markets ETF
+3. SPDW - SPDR Portfolio Developed World ex-US ETF
+4. EFG - iShares MSCI EAFE Growth ETF
+5. EFV - iShares MSCI EAFE Value ETF
+6. SCHF - Schwab International Equity ETF
+7. VGK - Vanguard FTSE Europe ETF
+8. EWJ - iShares MSCI Japan ETF
+9. BBJP - JPMorgan BetaBuilders Japan ETF
+10. EWG - iShares MSCI Germany ETF
+11. DFAI - Dimensional International Core Equity Market ETF
+12. VSS - Vanguard FTSE All-World EX-US Small-Cap Index Fund
+13. ESGD - iShares ESG Aware MSCI EAFE ETF
+
+## Group 7: Emerging Markets & Single Country
+1. EEM - iShares MSCI Emerging Markets ETF
+2. VWO - Vanguard FTSE Emerging Markets ETF
+3. EMXC - iShares MSCI Emerging Markets ex China ETF
+4. SPEM - SPDR Portfolio Emerging Markets ETF
+5. FXI - iShares China Large-Cap ETF
+6. KWEB - KraneShares CSI China Internet ETF
+7. ASHR - Xtrackers Harvest CSI 300 China A-Shares ETF
+8. EWZ - iShares MSCI Brazil ETF
+9. INDA - iShares MSCI India ETF
+10. EWY - iShares MSCI South Korea ETF
+11. EWW - iShares MSCI Mexico ETF
+12. EWA - iShares MSCI Australia ETF
+13. AVEM - Avantis Emerging Markets Equity ETF
+
+## Group 8: Global & All-World ETFs
+1. VT - Vanguard Total World Stock ETF
+2. ACWI - iShares MSCI ACWI ETF
+3. ACWX - iShares MSCI ACWI ex US ETF
+4. VXUS - Vanguard Total International Stock ETF
+5. VEU - Vanguard FTSE All-World Ex-US ETF
+6. IXUS - iShares Core MSCI Total International Stock ETF
+7. URTH - iShares MSCI World ETF
+8. FEZ - SPDR EURO STOXX 50 ETF
+
+## Group 9: Leveraged Bull ETFs
+1. TQQQ - ProShares UltraPro QQQ (3x Nasdaq-100)
+2. UPRO - ProShares UltraPro S&P 500 (3x S&P 500)
+3. SOXL - Direxion Daily Semiconductor Bull 3X Shares
+4. SPXL - Direxion Daily S&P 500 Bull 3x Shares
+5. TNA - Direxion Daily Small Cap Bull 3x Shares
+6. TECL - Direxion Daily Technology Bull 3x Shares
+7. FAS - Direxion Daily Financial Bull 3x Shares
+8. LABU - Direxion Daily S&P Biotech Bull 3X Shares
+9. DPST - Direxion Daily Regional Banks Bull 3X Shares
+10. TMF - Direxion Daily 20+ Year Treasury Bull 3X Shares
+11. QLD - ProShares Ultra QQQ (2x Nasdaq-100)
+12. SSO - ProShares Ultra S&P500 (2x S&P 500)
+
+## Group 10: Inverse & Bear ETFs
+1. SPXS - Direxion Daily S&P 500 Bear 3x Shares
+2. SPXU - ProShares UltraPro Short S&P 500
+3. SH - ProShares Short S&P500
+4. QID - ProShares UltraShort QQQ
+5. PSQ - ProShares Short QQQ
+6. SDOW - ProShares UltraPro Short Dow 30
+7. DOG - ProShares Short Dow30
+8. DUST - Direxion Daily Gold Miners Index Bear 2X Shares
+9. SDS - ProShares UltraShort S&P500
+
+## Group 11: Single-Stock Leveraged ETFs & Specialty
+1. NVDL - GraniteShares 2x Long NVDA Daily ETF
+2. NVDU - Direxion Daily NVDA Bull 2X Shares
+3. AMDL - GraniteShares 2x Long AMD Daily ETF
+4. TSLL - Direxion Daily TSLA Bull 2X Shares
+5. TSLT - T-REX 2X Long Tesla Daily Target ETF
+6. NVDY - YieldMax NVDA Option Income Strategy ETF
+7. MSTY - YieldMax MSTR Option Income Strategy ETF
+8. CONY - YieldMax COIN Option Income Strategy ETF
+9. BOXX - Alpha Architect 1-3 Month Box ETF
+10. SVXY - ProShares Short VIX Short-Term Futures ETF
+11. YINN - Direxion Daily FTSE China Bull 3X Shares
+12. USD - ProShares Ultra Semiconductors
+
+## Group 12: US Treasury Bonds
+1. TLT - iShares 20 Year Treasury Bond ETF (Long-term)
+2. IEF - iShares 7-10 Year Treasury Bond ETF (Intermediate)
+3. SHY - iShares 1-3 Year Treasury Bond ETF (Short-term)
+4. GOVT - iShares U.S. Treasury Bond ETF (Broad Treasury)
+5. VGLT - Vanguard Long-Term Treasury ETF
+6. VGIT - Vanguard Intermediate-Term Treasury ETF
+7. VGSH - Vanguard Short-Term Treasury ETF
+8. SGOV - iShares 0-3 Month Treasury Bond ETF (Ultra-short)
+9. BIL - SPDR Bloomberg 1-3 Month T-Bill ETF
+10. SHV - iShares Short Treasury Bond ETF
+11. BILS - SPDR Bloomberg 3-12 Month T-Bill ETF
+12. TLH - iShares 10-20 Year Treasury Bond ETF
+13. IEI - iShares 3-7 Year Treasury Bond ETF
+
+## Group 13: Corporate & Broad Market Bonds
+1. LQD - iShares iBoxx $ Investment Grade Corporate Bond ETF
+2. HYG - iShares iBoxx $ High Yield Corporate Bond ETF (Junk)
+3. VCIT - Vanguard Intermediate-Term Corporate Bond ETF
+4. VCSH - Vanguard Short-Term Corporate Bond ETF
+5. VCLT - Vanguard Long-Term Corporate Bond ETF
+6. AGG - iShares Core U.S. Aggregate Bond ETF (Broad Market)
+7. BND - Vanguard Total Bond Market ETF (Broad Market)
+8. IUSB - iShares Core Total USD Bond Market ETF
+9. BIV - Vanguard Intermediate-Term Bond ETF
+10. BSV - Vanguard Short-Term Bond ETF
+11. BLV - Vanguard Long-Term Bond ETF
+12. USHY - iShares Broad USD High Yield Corporate Bond ETF
+13. JNK - SPDR Bloomberg High Yield Bond ETF
+
+## Group 14: Specialized Fixed Income
+1. EMB - iShares J.P. Morgan USD Emerging Markets Bond ETF
+2. BNDX - Vanguard Total International Bond ETF
+3. TIP - iShares TIPS Bond ETF
+4. VTIP - Vanguard Short-Term Inflation-Protected Securities ETF
+5. VTEB - Vanguard Tax-Exempt Bond Index Fund (Municipal)
+6. FLOT - iShares Floating Rate Bond ETF
+7. TFLO - iShares Treasury Floating Rate Bond ETF
+8. USFR - WisdomTree Floating Rate Treasury Fund
+9. JAAA - Janus Henderson AAA CLO ETF
+10. BKLN - Invesco Senior Loan ETF
+11. SRLN - SPDR Blackstone Senior Loan ETF
+12. MINT - PIMCO Enhanced Short Maturity Active ETF
+13. JPST - JPMorgan Ultra-Short Income ETF
+14. PFF - iShares Preferred and Income Securities ETF
+
+## Group 15: Commodities & Metals
+1. GLD - SPDR Gold Trust
+2. SLV - iShares Silver Trust
+3. IAU - iShares Gold Trust
+4. GLDM - SPDR Gold MiniShares
+5. SGOL - abrdn Physical Gold Shares ETF
+6. PDBC - Invesco Optimum Yield Diversified Commodity Strategy No K-1 ETF
+7. USO - United States Oil Fund
+8. UNG - United States Natural Gas Fund
+9. IAUM - iShares Gold Trust Micro
+10. PHYS - Sprott Physical Gold Trust
+11. GDX - VanEck Gold Miners ETF
+12. GDXJ - VanEck Junior Gold Miners ETF
+13. URA - Global X Uranium ETF
+14. COPX - Global X Copper Miners ETF
+
+## Group 16: Cryptocurrency & Alternative ETFs
+1. IBIT - iShares Bitcoin Trust ETF
+2. GBTC - Grayscale Bitcoin Trust ETF
+3. FBTC - Fidelity Wise Origin Bitcoin Fund
+4. BITO - ProShares Bitcoin ETF
+5. BITB - Bitwise Bitcoin ETF
+6. ARKB - ARK 21Shares Bitcoin ETF
+7. ETHA - iShares Ethereum Trust ETF
+8. ETHE - Grayscale Ethereum Trust ETF
+9. BITX - 2x Bitcoin Strategy ETF
+10. ETHU - 2x Ether ETF
+11. BITU - ProShares Ultra Bitcoin ETF
+12. MJUS - Amplify U.S. Alternative Harvest ETF (Cannabis)
+
+## Group 17: Real Estate & REITs
+1. DLR - Digital Realty Trust, Inc. (Data Centers)
+2. MPW - Medical Properties Trust, Inc. (Healthcare)
+3. CPT - Camden Property Trust (Residential)
+4. ESS - Essex Property Trust, Inc. (Residential)
+5. FRT - Federal Realty Investment Trust (Retail)
+6. FR - First Industrial Realty Trust, Inc. (Industrial)
+7. STWD - STARWOOD PROPERTY TRUST, INC. (Diversified)
+8. ABR - Arbor Realty Trust, Inc. (Mortgage)
+9. PEB - Pebblebrook Hotel Trust (Hospitality)
+10. IYR - iShares U.S. Real Estate ETF
+11. FNDX - Schwab Fundamental U.S. Large Company ETF
+12. FELC - Fidelity Enhanced Large Cap Core ETF
+
+## Group 18: Individual Stocks & Sector-Specific Companies
+1. NFLX - Netflix, Inc. Common Stock (Media)
+2. HOOD - Robinhood Markets, Inc. Class A Common Stock (Fintech)
+3. SFM - Sprouts Farmers Market, Inc. Common Stock (Grocery)
+4. CLSK - CleanSpark, Inc. Common Stock (Clean Energy)
+5. WTFC - Wintrust Financial Corporation Common Stock (Banking)
+6. SN - SharkNinja, Inc. (Consumer Products)
+7. CNK - Cinemark Holdings, Inc. (Entertainment)
+8. WRBY - Warby Parker Inc. (Retail)
+9. PH - Parker-Hannifin Corporation (Industrial)
+10. ARMK - ARAMARK (Hospitality)
+11. PRKS - United Parks & Resorts Inc. (Entertainment)
+12. NUGT - Direxion Daily Gold Miners Index Bull 2X Shares
