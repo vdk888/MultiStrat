@@ -1,0 +1,1002 @@
+{% extends "layout.html" %}
+
+{% block title %}Portfolios | Portfolio Management System{% endblock %}
+
+{% block content %}
+<!-- Page Title & Controls -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">Portfolios</h1>
+    <div class="d-flex">
+        <button id="refresh-portfolios" class="btn btn-sm btn-outline-secondary me-2">
+            <i class="fas fa-sync-alt me-1"></i> Refresh
+        </button>
+        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#create-portfolio-modal">
+            <i class="fas fa-plus me-1"></i> New Portfolio
+        </button>
+    </div>
+</div>
+
+<!-- Portfolios List -->
+<div class="row" id="portfolios-container">
+    <div class="col-12">
+        <div class="text-center p-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2 text-muted">Loading portfolios...</p>
+        </div>
+    </div>
+</div>
+
+<!-- Portfolio Details Modal -->
+<div class="modal fade" id="portfolio-details-modal" tabindex="-1" aria-labelledby="portfolioDetailsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="portfolioDetailsModalLabel">Portfolio Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="portfolio-details-content">
+                <div class="text-center py-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2 text-muted">Loading portfolio details...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Allocations Modal -->
+<div class="modal fade" id="allocations-modal" tabindex="-1" aria-labelledby="allocationsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="allocationsModalLabel">Strategy Allocations</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div id="allocation-chart-container" style="height: 300px;">
+                    <canvas id="allocation-chart"></canvas>
+                </div>
+                <div id="allocations-list" class="mt-4">
+                    <!-- Will be populated by JavaScript -->
+                </div>
+                <div class="d-grid mt-4">
+                    <button id="optimize-allocations-btn" class="btn btn-primary">
+                        <i class="fas fa-magic me-1"></i> Optimize Allocations
+                    </button>
+                </div>
+                <div id="optimization-status-container" class="mt-3"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create Portfolio Modal -->
+<div class="modal fade" id="create-portfolio-modal" tabindex="-1" aria-labelledby="createPortfolioModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createPortfolioModalLabel">Create New Portfolio</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="create-portfolio-form">
+                    <div class="mb-3">
+                        <label for="portfolio-name" class="form-label">Portfolio Name</label>
+                        <input type="text" class="form-control" id="portfolio-name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="portfolio-description" class="form-label">Description</label>
+                        <textarea class="form-control" id="portfolio-description" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="initial-capital" class="form-label">Initial Capital</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" class="form-control" id="initial-capital" name="initial_capital" value="10000" min="1" step="1">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="risk-tolerance" class="form-label">Risk Tolerance</label>
+                        <div class="d-flex align-items-center">
+                            <input type="range" class="form-range me-2" id="risk-tolerance" name="risk_tolerance" min="0" max="100" value="50">
+                            <span id="risk-display">50%</span>
+                        </div>
+                        <div class="d-flex justify-content-between mt-1">
+                            <small class="text-muted">Conservative</small>
+                            <small class="text-muted">Aggressive</small>
+                        </div>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Create Portfolio</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Rebalance Modal -->
+<div class="modal fade" id="rebalance-modal" tabindex="-1" aria-labelledby="rebalanceModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="rebalanceModalLabel">Rebalance Portfolio</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="rebalance-form">
+                    <input type="hidden" id="rebalance-portfolio-id" name="portfolio_id">
+                    <div class="mb-3">
+                        <label for="max-trades" class="form-label">Maximum Number of Trades</label>
+                        <input type="number" class="form-control" id="max-trades" name="max_trades" value="10" min="1" max="100">
+                        <div class="form-text">Limit the total number of trades to execute during rebalancing</div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="trade-limit-pct" class="form-label">Maximum Trade Size (% of Portfolio)</label>
+                        <div class="input-group">
+                            <input type="number" class="form-control" id="trade-limit-pct" name="trade_limit_pct" value="20" min="1" max="100">
+                            <span class="input-group-text">%</span>
+                        </div>
+                        <div class="form-text">Limit the maximum percentage of portfolio value to trade at once</div>
+                    </div>
+                    <div id="rebalance-status" class="mb-3"></div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Start Rebalance</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Wait for DOM to be ready
+    document.addEventListener('DOMContentLoaded', function() {
+        // Load portfolios
+        loadPortfolios();
+        
+        // Set up event listeners
+        document.getElementById('refresh-portfolios')?.addEventListener('click', loadPortfolios);
+        
+        // Portfolio creation form
+        const createPortfolioForm = document.getElementById('create-portfolio-form');
+        if (createPortfolioForm) {
+            createPortfolioForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                createPortfolio(this);
+            });
+        }
+        
+        // Risk tolerance display
+        const riskTolerance = document.getElementById('risk-tolerance');
+        const riskDisplay = document.getElementById('risk-display');
+        
+        if (riskTolerance && riskDisplay) {
+            riskTolerance.addEventListener('input', function() {
+                riskDisplay.textContent = this.value + '%';
+            });
+        }
+        
+        // Rebalance form
+        const rebalanceForm = document.getElementById('rebalance-form');
+        if (rebalanceForm) {
+            rebalanceForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                startRebalance(this);
+            });
+        }
+        
+        // Optimize allocations button
+        document.getElementById('optimize-allocations-btn')?.addEventListener('click', optimizeAllocations);
+    });
+    
+    // Load portfolios
+    function loadPortfolios() {
+        const container = document.getElementById('portfolios-container');
+        if (!container) return;
+        
+        // Show loading
+        container.innerHTML = `
+            <div class="col-12">
+                <div class="text-center p-5">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-2 text-muted">Loading portfolios...</p>
+                </div>
+            </div>
+        `;
+        
+        // Fetch portfolios from API
+        fetch('/api/v1/portfolios')
+            .then(response => response.json())
+            .then(portfolios => {
+                renderPortfolios(portfolios);
+            })
+            .catch(error => {
+                console.error('Error loading portfolios:', error);
+                container.innerHTML = `
+                    <div class="col-12">
+                        <div class="alert alert-danger">
+                            <i class="fas fa-exclamation-circle me-2"></i>
+                            Failed to load portfolios. Please try again later.
+                        </div>
+                    </div>
+                `;
+            });
+    }
+    
+    // Render portfolios
+    function renderPortfolios(portfolios) {
+        const container = document.getElementById('portfolios-container');
+        if (!container) return;
+        
+        if (!portfolios || portfolios.length === 0) {
+            container.innerHTML = `
+                <div class="col-12">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        No portfolios found. Create a portfolio to get started.
+                    </div>
+                </div>
+            `;
+            return;
+        }
+        
+        // Clear container
+        container.innerHTML = '';
+        
+        // Create HTML for each portfolio
+        portfolios.forEach(portfolio => {
+            const card = document.createElement('div');
+            card.className = 'col-xl-4 col-md-6 mb-4';
+            card.innerHTML = `
+                <div class="card border-0 shadow-sm h-100">
+                    <div class="card-body">
+                        <div class="d-flex align-items-center justify-content-between mb-3">
+                            <h5 class="card-title mb-0">${portfolio.name}</h5>
+                            <span class="badge ${portfolio.is_active ? 'bg-success' : 'bg-secondary'}">
+                                ${portfolio.is_active ? 'Active' : 'Inactive'}
+                            </span>
+                        </div>
+                        <div class="text-muted mb-3">${portfolio.description || 'No description provided'}</div>
+                        <div class="d-flex align-items-center mt-3">
+                            <div class="text-primary fw-bold fs-4 me-3">$${formatNumber(portfolio.current_value, 2)}</div>
+                        </div>
+                        <div class="text-muted small mt-3">
+                            <div>Initial Capital: $${formatNumber(portfolio.initial_capital, 2)}</div>
+                            <div>Risk Tolerance: ${portfolio.risk_tolerance * 100}%</div>
+                            <div>Created: ${new Date(portfolio.created_at).toLocaleDateString()}</div>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent border-0 p-3">
+                        <div class="d-flex justify-content-between">
+                            <button class="btn btn-sm btn-outline-primary view-details" data-portfolio-id="${portfolio.id}">
+                                <i class="fas fa-eye me-1"></i> Details
+                            </button>
+                            <button class="btn btn-sm btn-outline-secondary view-allocations" data-portfolio-id="${portfolio.id}">
+                                <i class="fas fa-sliders-h me-1"></i> Allocations
+                            </button>
+                            <button class="btn btn-sm btn-outline-success rebalance-portfolio" data-portfolio-id="${portfolio.id}">
+                                <i class="fas fa-balance-scale me-1"></i> Rebalance
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            container.appendChild(card);
+        });
+        
+        // Add event listeners for action buttons
+        document.querySelectorAll('.view-details').forEach(button => {
+            button.addEventListener('click', function() {
+                const portfolioId = this.getAttribute('data-portfolio-id');
+                openPortfolioDetails(portfolioId);
+            });
+        });
+        
+        document.querySelectorAll('.view-allocations').forEach(button => {
+            button.addEventListener('click', function() {
+                const portfolioId = this.getAttribute('data-portfolio-id');
+                openAllocations(portfolioId);
+            });
+        });
+        
+        document.querySelectorAll('.rebalance-portfolio').forEach(button => {
+            button.addEventListener('click', function() {
+                const portfolioId = this.getAttribute('data-portfolio-id');
+                openRebalanceModal(portfolioId);
+            });
+        });
+    }
+    
+    // Open portfolio details modal
+    function openPortfolioDetails(portfolioId) {
+        const modal = new bootstrap.Modal(document.getElementById('portfolio-details-modal'));
+        const contentContainer = document.getElementById('portfolio-details-content');
+        
+        // Show loading
+        contentContainer.innerHTML = `
+            <div class="text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2 text-muted">Loading portfolio details...</p>
+            </div>
+        `;
+        
+        modal.show();
+        
+        // Fetch portfolio data
+        fetch(`/api/v1/portfolios/${portfolioId}`)
+            .then(response => response.json())
+            .then(portfolio => {
+                // Fetch portfolio assets
+                return fetch(`/api/v1/portfolios/${portfolioId}/assets`)
+                    .then(response => response.json())
+                    .then(assets => {
+                        return { portfolio, assets };
+                    });
+            })
+            .then(data => {
+                // Fetch performance metrics
+                return fetch(`/api/v1/portfolios/${portfolioId}/performance?limit=1`)
+                    .then(response => response.json())
+                    .then(performance => {
+                        return { ...data, performance };
+                    });
+            })
+            .then(data => {
+                // Render portfolio details
+                renderPortfolioDetails(data.portfolio, data.assets, data.performance);
+            })
+            .catch(error => {
+                console.error('Error loading portfolio details:', error);
+                contentContainer.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        Failed to load portfolio details. Please try again later.
+                    </div>
+                `;
+            });
+    }
+    
+    // Render portfolio details
+    function renderPortfolioDetails(portfolio, assets, performance) {
+        const contentContainer = document.getElementById('portfolio-details-content');
+        if (!contentContainer) return;
+        
+        // Get latest performance metrics if available
+        const latestPerformance = performance && performance.length > 0 ? performance[0] : null;
+        
+        // Create HTML content
+        let html = `
+            <div class="row mb-4">
+                <div class="col-md-6">
+                    <h5>Portfolio Information</h5>
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <th>Name</th>
+                                <td>${portfolio.name}</td>
+                            </tr>
+                            <tr>
+                                <th>Description</th>
+                                <td>${portfolio.description || 'No description provided'}</td>
+                            </tr>
+                            <tr>
+                                <th>Initial Capital</th>
+                                <td>$${formatNumber(portfolio.initial_capital, 2)}</td>
+                            </tr>
+                            <tr>
+                                <th>Current Value</th>
+                                <td>$${formatNumber(portfolio.current_value, 2)}</td>
+                            </tr>
+                            <tr>
+                                <th>Risk Tolerance</th>
+                                <td>${portfolio.risk_tolerance * 100}%</td>
+                            </tr>
+                            <tr>
+                                <th>Status</th>
+                                <td>
+                                    <span class="badge ${portfolio.is_active ? 'bg-success' : 'bg-secondary'}">
+                                        ${portfolio.is_active ? 'Active' : 'Inactive'}
+                                    </span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Created</th>
+                                <td>${new Date(portfolio.created_at).toLocaleString()}</td>
+                            </tr>
+                            <tr>
+                                <th>Last Updated</th>
+                                <td>${new Date(portfolio.updated_at).toLocaleString()}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="col-md-6">
+                    <h5>Performance Metrics</h5>
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <th>Total Return</th>
+                                <td>${latestPerformance ? formatNumber(latestPerformance.total_return, 2) + '%' : 'N/A'}</td>
+                            </tr>
+                            <tr>
+                                <th>Sharpe Ratio</th>
+                                <td>${latestPerformance ? formatNumber(latestPerformance.sharpe_ratio, 2) : 'N/A'}</td>
+                            </tr>
+                            <tr>
+                                <th>Maximum Drawdown</th>
+                                <td>${latestPerformance ? formatNumber(latestPerformance.max_drawdown, 2) + '%' : 'N/A'}</td>
+                            </tr>
+                            <tr>
+                                <th>Volatility</th>
+                                <td>${latestPerformance ? formatNumber(latestPerformance.volatility, 2) + '%' : 'N/A'}</td>
+                            </tr>
+                            <tr>
+                                <th>Win Rate</th>
+                                <td>${latestPerformance ? formatNumber(latestPerformance.win_rate, 2) + '%' : 'N/A'}</td>
+                            </tr>
+                            <tr>
+                                <th>Last Calculated</th>
+                                <td>${latestPerformance ? new Date(latestPerformance.timestamp).toLocaleString() : 'N/A'}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <h5>Portfolio Assets</h5>
+        `;
+        
+        // Add assets table
+        if (!assets || assets.length === 0) {
+            html += `
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    No assets in this portfolio.
+                </div>
+            `;
+        } else {
+            html += `
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Symbol</th>
+                                <th>Name</th>
+                                <th>Quantity</th>
+                                <th>Price</th>
+                                <th>Value</th>
+                                <th>Allocation</th>
+                                <th>Target</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+            
+            assets.forEach(asset => {
+                const currentValue = asset.quantity * (asset.current_price || 0);
+                html += `
+                    <tr>
+                        <td>${asset.asset.symbol}</td>
+                        <td>${asset.asset.name}</td>
+                        <td>${formatNumber(asset.quantity, 4)}</td>
+                        <td>$${formatNumber(asset.current_price, 2)}</td>
+                        <td>$${formatNumber(currentValue, 2)}</td>
+                        <td>${formatNumber(asset.current_allocation * 100, 2)}%</td>
+                        <td>${formatNumber(asset.target_allocation * 100, 2)}%</td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+        }
+        
+        // Set HTML content
+        contentContainer.innerHTML = html;
+    }
+    
+    // Open allocations modal
+    function openAllocations(portfolioId) {
+        const modal = new bootstrap.Modal(document.getElementById('allocations-modal'));
+        modal.show();
+        
+        // Set portfolio ID for optimization button
+        document.getElementById('optimize-allocations-btn').setAttribute('data-portfolio-id', portfolioId);
+        
+        // Reset optimization status
+        document.getElementById('optimization-status-container').innerHTML = '';
+        
+        // Fetch portfolio strategies
+        fetch(`/api/v1/portfolios/${portfolioId}/strategies`)
+            .then(response => response.json())
+            .then(strategies => {
+                renderAllocationChart(strategies);
+                renderAllocationsList(strategies, portfolioId);
+            })
+            .catch(error => {
+                console.error('Error loading portfolio strategies:', error);
+                document.getElementById('allocations-list').innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        Failed to load strategy allocations. Please try again later.
+                    </div>
+                `;
+            });
+    }
+    
+    // Render allocation chart
+    function renderAllocationChart(strategies) {
+        const ctx = document.getElementById('allocation-chart').getContext('2d');
+        
+        // Extract data for chart
+        const labels = strategies.map(s => s.strategy.name);
+        const data = strategies.map(s => s.allocation * 100);  // Convert to percentage
+        
+        // Generate random colors
+        const backgroundColors = strategies.map(() => {
+            const r = Math.floor(Math.random() * 200);
+            const g = Math.floor(Math.random() * 200);
+            const b = Math.floor(Math.random() * 200);
+            return `rgba(${r}, ${g}, ${b}, 0.6)`;
+        });
+        
+        // Create chart
+        if (window.allocationChart) {
+            window.allocationChart.destroy();
+        }
+        
+        window.allocationChart = new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: data,
+                    backgroundColor: backgroundColors,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'right',
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.label || '';
+                                const value = context.raw || 0;
+                                return `${label}: ${value.toFixed(2)}%`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    // Render allocations list
+    function renderAllocationsList(strategies, portfolioId) {
+        const container = document.getElementById('allocations-list');
+        if (!container) return;
+        
+        if (!strategies || strategies.length === 0) {
+            container.innerHTML = `
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    No strategies in this portfolio.
+                </div>
+            `;
+            return;
+        }
+        
+        // Create HTML for strategies
+        let html = `
+            <form id="update-allocations-form" data-portfolio-id="${portfolioId}">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Strategy</th>
+                                <th>Description</th>
+                                <th>Allocation</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+        `;
+        
+        strategies.forEach(strategy => {
+            html += `
+                <tr>
+                    <td>${strategy.strategy.name}</td>
+                    <td>${strategy.strategy.description || 'No description'}</td>
+                    <td style="width: 200px;">
+                        <div class="input-group">
+                            <input type="number" class="form-control form-control-sm allocation-input" 
+                                   data-strategy-id="${strategy.strategy_id}" 
+                                   value="${(strategy.allocation * 100).toFixed(2)}" 
+                                   min="0" max="100" step="0.01">
+                            <span class="input-group-text">%</span>
+                        </div>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-sm btn-outline-danger remove-strategy" 
+                                data-portfolio-id="${portfolioId}" data-strategy-id="${strategy.strategy_id}">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
+        });
+        
+        html += `
+                        </tbody>
+                    </table>
+                </div>
+                <div class="d-flex justify-content-between mt-3">
+                    <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#add-strategy-modal">
+                        <i class="fas fa-plus me-1"></i> Add Strategy
+                    </button>
+                    <button type="submit" class="btn btn-success">
+                        <i class="fas fa-save me-1"></i> Save Allocations
+                    </button>
+                </div>
+            </form>
+        `;
+        
+        container.innerHTML = html;
+        
+        // Add event listeners
+        document.getElementById('update-allocations-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            updateAllocations(this);
+        });
+        
+        document.querySelectorAll('.remove-strategy').forEach(button => {
+            button.addEventListener('click', function() {
+                const portfolioId = this.getAttribute('data-portfolio-id');
+                const strategyId = this.getAttribute('data-strategy-id');
+                removeStrategy(portfolioId, strategyId);
+            });
+        });
+    }
+    
+    // Update allocations
+    function updateAllocations(form) {
+        const portfolioId = form.getAttribute('data-portfolio-id');
+        const inputs = form.querySelectorAll('.allocation-input');
+        
+        // Check if allocations sum to 100%
+        let total = 0;
+        inputs.forEach(input => {
+            total += parseFloat(input.value);
+        });
+        
+        if (Math.abs(total - 100) > 0.01) {
+            showErrorMessage('Allocations must sum to 100%. Current sum: ' + total.toFixed(2) + '%');
+            return;
+        }
+        
+        // Prepare updates
+        const updates = [];
+        inputs.forEach(input => {
+            const strategyId = input.getAttribute('data-strategy-id');
+            const allocation = parseFloat(input.value) / 100;  // Convert to decimal
+            
+            updates.push(fetch(`/api/v1/portfolios/${portfolioId}/strategies/${strategyId}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    allocation: allocation
+                })
+            }));
+        });
+        
+        // Execute all updates
+        Promise.all(updates)
+            .then(() => {
+                showSuccessMessage('Allocations updated successfully');
+                openAllocations(portfolioId);  // Refresh the modal
+            })
+            .catch(error => {
+                console.error('Error updating allocations:', error);
+                showErrorMessage('Failed to update allocations. Please try again.');
+            });
+    }
+    
+    // Remove strategy from portfolio
+    function removeStrategy(portfolioId, strategyId) {
+        if (!confirm('Are you sure you want to remove this strategy from the portfolio?')) {
+            return;
+        }
+        
+        fetch(`/api/v1/portfolios/${portfolioId}/strategies/${strategyId}`, {
+            method: 'DELETE'
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to remove strategy');
+                }
+                showSuccessMessage('Strategy removed successfully');
+                openAllocations(portfolioId);  // Refresh the modal
+            })
+            .catch(error => {
+                console.error('Error removing strategy:', error);
+                showErrorMessage('Failed to remove strategy. Please try again.');
+            });
+    }
+    
+    // Optimize allocations
+    function optimizeAllocations() {
+        const button = document.getElementById('optimize-allocations-btn');
+        const portfolioId = button.getAttribute('data-portfolio-id');
+        const statusContainer = document.getElementById('optimization-status-container');
+        
+        // Show loading
+        button.disabled = true;
+        button.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Optimizing...';
+        
+        statusContainer.innerHTML = `
+            <div class="alert alert-info">
+                <div class="d-flex align-items-center">
+                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    <span>Optimization in progress... This may take a few moments.</span>
+                </div>
+            </div>
+        `;
+        
+        // Start optimization
+        fetch(`/api/v1/portfolios/${portfolioId}/optimize-allocation`, {
+            method: 'POST'
+        })
+            .then(response => response.json())
+            .then(data => {
+                // Poll for results
+                const intervalId = setInterval(() => {
+                    fetch(`/api/v1/tasks/${data.task_id}`)
+                        .then(response => response.json())
+                        .then(task => {
+                            if (task.status === 'completed') {
+                                clearInterval(intervalId);
+                                button.disabled = false;
+                                button.innerHTML = '<i class="fas fa-magic me-1"></i> Optimize Allocations';
+                                
+                                statusContainer.innerHTML = `
+                                    <div class="alert alert-success">
+                                        <i class="fas fa-check-circle me-2"></i>
+                                        Optimization completed successfully!
+                                    </div>
+                                `;
+                                
+                                // Refresh allocations
+                                openAllocations(portfolioId);
+                            } else if (task.status === 'failed') {
+                                clearInterval(intervalId);
+                                button.disabled = false;
+                                button.innerHTML = '<i class="fas fa-magic me-1"></i> Optimize Allocations';
+                                
+                                statusContainer.innerHTML = `
+                                    <div class="alert alert-danger">
+                                        <i class="fas fa-exclamation-circle me-2"></i>
+                                        Optimization failed: ${task.error || 'Unknown error'}
+                                    </div>
+                                `;
+                            }
+                        })
+                        .catch(error => {
+                            clearInterval(intervalId);
+                            console.error('Error checking task status:', error);
+                            button.disabled = false;
+                            button.innerHTML = '<i class="fas fa-magic me-1"></i> Optimize Allocations';
+                            
+                            statusContainer.innerHTML = `
+                                <div class="alert alert-danger">
+                                    <i class="fas fa-exclamation-circle me-2"></i>
+                                    Error checking optimization status. Please try again.
+                                </div>
+                            `;
+                        });
+                }, 2000);
+            })
+            .catch(error => {
+                console.error('Error starting optimization:', error);
+                button.disabled = false;
+                button.innerHTML = '<i class="fas fa-magic me-1"></i> Optimize Allocations';
+                
+                statusContainer.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        Failed to start optimization. Please try again.
+                    </div>
+                `;
+            });
+    }
+    
+    // Open rebalance modal
+    function openRebalanceModal(portfolioId) {
+        const modal = new bootstrap.Modal(document.getElementById('rebalance-modal'));
+        document.getElementById('rebalance-portfolio-id').value = portfolioId;
+        document.getElementById('rebalance-status').innerHTML = '';
+        modal.show();
+    }
+    
+    // Start portfolio rebalance
+    function startRebalance(form) {
+        const portfolioId = document.getElementById('rebalance-portfolio-id').value;
+        const maxTrades = document.getElementById('max-trades').value;
+        const tradeLimitPct = document.getElementById('trade-limit-pct').value;
+        const statusContainer = document.getElementById('rebalance-status');
+        
+        // Show loading
+        const submitBtn = form.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Rebalancing...';
+        
+        statusContainer.innerHTML = `
+            <div class="alert alert-info">
+                <div class="d-flex align-items-center">
+                    <span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    <span>Rebalancing in progress... This may take a few moments.</span>
+                </div>
+            </div>
+        `;
+        
+        // Prepare data
+        const rebalanceData = {
+            portfolio_id: portfolioId,
+            max_trades: parseInt(maxTrades),
+            trade_limit_pct: parseFloat(tradeLimitPct)
+        };
+        
+        // Start rebalance
+        fetch(`/api/v1/portfolios/${portfolioId}/rebalance`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(rebalanceData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                // Poll for results
+                const intervalId = setInterval(() => {
+                    fetch(`/api/v1/tasks/${data.task_id}`)
+                        .then(response => response.json())
+                        .then(task => {
+                            if (task.status === 'completed') {
+                                clearInterval(intervalId);
+                                submitBtn.disabled = false;
+                                submitBtn.innerHTML = 'Start Rebalance';
+                                
+                                statusContainer.innerHTML = `
+                                    <div class="alert alert-success">
+                                        <i class="fas fa-check-circle me-2"></i>
+                                        Rebalance completed successfully with ${task.trades_count || 0} trades!
+                                    </div>
+                                `;
+                            } else if (task.status === 'failed') {
+                                clearInterval(intervalId);
+                                submitBtn.disabled = false;
+                                submitBtn.innerHTML = 'Start Rebalance';
+                                
+                                statusContainer.innerHTML = `
+                                    <div class="alert alert-danger">
+                                        <i class="fas fa-exclamation-circle me-2"></i>
+                                        Rebalance failed: ${task.error || 'Unknown error'}
+                                    </div>
+                                `;
+                            }
+                        })
+                        .catch(error => {
+                            clearInterval(intervalId);
+                            console.error('Error checking task status:', error);
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = 'Start Rebalance';
+                            
+                            statusContainer.innerHTML = `
+                                <div class="alert alert-danger">
+                                    <i class="fas fa-exclamation-circle me-2"></i>
+                                    Error checking rebalance status. Please try again.
+                                </div>
+                            `;
+                        });
+                }, 2000);
+            })
+            .catch(error => {
+                console.error('Error starting rebalance:', error);
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Start Rebalance';
+                
+                statusContainer.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        Failed to start rebalance. Please try again.
+                    </div>
+                `;
+            });
+    }
+    
+    // Create portfolio
+    function createPortfolio(form) {
+        const formData = new FormData(form);
+        const portfolioData = {
+            name: formData.get('name'),
+            description: formData.get('description') || '',
+            initial_capital: parseFloat(formData.get('initial_capital')) || 10000,
+            risk_tolerance: parseFloat(formData.get('risk_tolerance')) / 100 || 0.5,
+            is_active: true
+        };
+        
+        // Show loading
+        const submitBtn = form.querySelector('button[type="submit"]');
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Creating...';
+        
+        fetch('/api/v1/portfolios', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(portfolioData)
+        })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => {
+                        throw new Error(data.detail || 'Failed to create portfolio');
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Reset form
+                form.reset();
+                
+                // Close modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('create-portfolio-modal'));
+                modal.hide();
+                
+                // Show success message
+                showSuccessMessage('Portfolio created successfully!');
+                
+                // Reload portfolios
+                loadPortfolios();
+            })
+            .catch(error => {
+                console.error('Error creating portfolio:', error);
+                showErrorMessage(error.message);
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Create Portfolio';
+            });
+    }
+    
+    // Format number with commas and specified decimal places
+    function formatNumber(value, decimals = 0) {
+        if (value === null || value === undefined || isNaN(value)) return '-';
+        
+        return Number(value).toLocaleString('en-US', {
+            minimumFractionDigits: decimals,
+            maximumFractionDigits: decimals
+        });
+    }
+</script>
+{% endblock %}

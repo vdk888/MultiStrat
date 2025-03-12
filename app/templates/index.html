@@ -1,0 +1,274 @@
+{% extends "layout.html" %}
+
+{% block title %}Dashboard | Portfolio Management System{% endblock %}
+
+{% block content %}
+<!-- Page Title & Controls -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">Dashboard</h1>
+    <div class="d-flex">
+        <button id="refresh-data" class="btn btn-sm btn-outline-secondary me-2">
+            <i class="fas fa-sync-alt me-1"></i> Refresh
+        </button>
+        <button class="btn btn-sm btn-primary" data-bs-toggle="modal" data-bs-target="#create-portfolio-modal">
+            <i class="fas fa-plus me-1"></i> New Portfolio
+        </button>
+    </div>
+</div>
+
+<!-- System Status -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="card-title mb-0">System Status</h5>
+            <div id="system-status">
+                <span class="badge bg-secondary">
+                    <i class="fas fa-spinner fa-spin me-1"></i> Checking...
+                </span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Portfolio Summary -->
+<h4 class="h5 mb-3">Portfolio Summary</h4>
+<div id="portfolio-summary" class="row">
+    <div class="col-12">
+        <div class="text-center p-5">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
+            <p class="mt-2 text-muted">Loading portfolio data...</p>
+        </div>
+    </div>
+</div>
+
+<!-- Performance Charts -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">Performance Metrics</h5>
+                <div>
+                    <select id="portfolio-selector" class="form-select form-select-sm" style="width: 200px;">
+                        <option value="" disabled selected>Select Portfolio</option>
+                        <!-- Will be populated by JavaScript -->
+                    </select>
+                </div>
+            </div>
+            <div class="card-body">
+                <div id="performance-chart">
+                    <div class="row">
+                        <!-- Returns Chart -->
+                        <div class="col-md-4">
+                            <h6 class="text-center mb-3">Total Return (%)</h6>
+                            <div class="chart-container">
+                                <canvas id="returns-chart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <!-- Sharpe Ratio Chart -->
+                        <div class="col-md-4">
+                            <h6 class="text-center mb-3">Sharpe Ratio</h6>
+                            <div class="chart-container">
+                                <canvas id="sharpe-chart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <!-- Drawdown Chart -->
+                        <div class="col-md-4">
+                            <h6 class="text-center mb-3">Maximum Drawdown (%)</h6>
+                            <div class="chart-container">
+                                <canvas id="drawdown-chart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Trades -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-transparent">
+                <h5 class="card-title mb-0">Recent Trades</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Portfolio</th>
+                                <th>Asset</th>
+                                <th>Type</th>
+                                <th>Quantity</th>
+                                <th>Price</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recent-trades">
+                            <tr>
+                                <td colspan="7" class="text-center py-4">
+                                    <div class="text-muted">No recent trades found</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Create Portfolio Modal -->
+<div class="modal fade" id="create-portfolio-modal" tabindex="-1" aria-labelledby="createPortfolioModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="createPortfolioModalLabel">Create New Portfolio</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="create-portfolio-form">
+                    <div class="mb-3">
+                        <label for="portfolio-name" class="form-label">Portfolio Name</label>
+                        <input type="text" class="form-control" id="portfolio-name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="portfolio-description" class="form-label">Description</label>
+                        <textarea class="form-control" id="portfolio-description" name="description" rows="3"></textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="initial-capital" class="form-label">Initial Capital</label>
+                        <div class="input-group">
+                            <span class="input-group-text">$</span>
+                            <input type="number" class="form-control" id="initial-capital" name="initial_capital" value="10000" min="1" step="1">
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <label for="risk-tolerance" class="form-label">Risk Tolerance</label>
+                        <div class="d-flex align-items-center">
+                            <input type="range" class="form-range me-2" id="risk-tolerance" name="risk_tolerance" min="0" max="100" value="50">
+                            <span id="risk-display">50%</span>
+                        </div>
+                        <div class="d-flex justify-content-between mt-1">
+                            <small class="text-muted">Conservative</small>
+                            <small class="text-muted">Aggressive</small>
+                        </div>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Create Portfolio</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Risk tolerance display
+    const riskTolerance = document.getElementById('risk-tolerance');
+    const riskDisplay = document.getElementById('risk-display');
+    
+    if (riskTolerance && riskDisplay) {
+        riskTolerance.addEventListener('input', function() {
+            riskDisplay.textContent = this.value + '%';
+        });
+    }
+    
+    // Populate portfolio selector
+    function populatePortfolioSelector() {
+        fetch('/api/v1/portfolios?is_active=true')
+            .then(response => response.json())
+            .then(portfolios => {
+                const selector = document.getElementById('portfolio-selector');
+                if (!selector) return;
+                
+                // Clear existing options
+                selector.innerHTML = '<option value="" disabled>Select Portfolio</option>';
+                
+                // Add options for each portfolio
+                portfolios.forEach(portfolio => {
+                    const option = document.createElement('option');
+                    option.value = portfolio.id;
+                    option.textContent = portfolio.name;
+                    selector.appendChild(option);
+                });
+                
+                // Select first portfolio by default
+                if (portfolios.length > 0) {
+                    selector.value = portfolios[0].id;
+                    // Trigger change event to load data
+                    const event = new Event('change');
+                    selector.dispatchEvent(event);
+                }
+            })
+            .catch(error => {
+                console.error('Error loading portfolios:', error);
+            });
+    }
+    
+    // Load recent trades
+    function loadRecentTrades() {
+        fetch('/api/v1/portfolios/1/trades?limit=5')
+            .then(response => response.json())
+            .then(trades => {
+                const tradesContainer = document.getElementById('recent-trades');
+                if (!tradesContainer) return;
+                
+                if (!trades || trades.length === 0) {
+                    tradesContainer.innerHTML = `
+                        <tr>
+                            <td colspan="7" class="text-center py-4">
+                                <div class="text-muted">No recent trades found</div>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                // Create HTML for each trade
+                const tradesHtml = trades.map(trade => {
+                    return `
+                        <tr>
+                            <td>${new Date(trade.timestamp).toLocaleString()}</td>
+                            <td>Portfolio #${trade.portfolio_id}</td>
+                            <td>Asset #${trade.asset_id}</td>
+                            <td>
+                                <span class="badge ${trade.side.toLowerCase() === 'buy' ? 'bg-success' : 'bg-danger'}">
+                                    ${trade.side}
+                                </span>
+                            </td>
+                            <td>${trade.quantity}</td>
+                            <td>$${parseFloat(trade.price).toFixed(2)}</td>
+                            <td>
+                                <span class="badge ${trade.status === 'filled' ? 'bg-success' : 
+                                                    trade.status === 'pending' ? 'bg-warning' : 
+                                                    trade.status === 'failed' ? 'bg-danger' : 'bg-secondary'}">
+                                    ${trade.status}
+                                </span>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+                
+                tradesContainer.innerHTML = tradesHtml;
+            })
+            .catch(error => {
+                console.error('Error loading trades:', error);
+            });
+    }
+    
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+        populatePortfolioSelector();
+        loadRecentTrades();
+    });
+</script>
+{% endblock %}

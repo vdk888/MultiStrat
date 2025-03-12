@@ -1,0 +1,296 @@
+{% extends "layout.html" %}
+
+{% block title %}Optimization | Portfolio Management System{% endblock %}
+
+{% block content %}
+<!-- Page Title -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">Strategy Optimization</h1>
+</div>
+
+<!-- Optimization Status -->
+<div id="optimization-status"></div>
+
+<!-- Optimization Form -->
+<div class="row">
+    <div class="col-md-6">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-transparent">
+                <h5 class="card-title mb-0">Optimization Parameters</h5>
+            </div>
+            <div class="card-body">
+                <form id="optimization-form">
+                    <div class="mb-3">
+                        <label for="strategy-select" class="form-label">Strategy</label>
+                        <select class="form-select" id="strategy-select" name="strategy_id" required>
+                            <option value="" selected disabled>Select Strategy</option>
+                            <!-- Will be populated by JavaScript -->
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Assets</label>
+                        <div id="asset-list" class="list-group mb-2" style="max-height: 200px; overflow-y: auto;">
+                            <!-- Will be populated by JavaScript -->
+                        </div>
+                        <div class="form-text">Select assets to include in optimization</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="objective" class="form-label">Optimization Objective</label>
+                        <select class="form-select" id="objective" name="objective">
+                            <option value="sharpe_ratio" selected>Maximize Sharpe Ratio</option>
+                            <option value="total_return">Maximize Total Return</option>
+                            <option value="win_rate">Maximize Win Rate</option>
+                            <option value="max_drawdown">Minimize Maximum Drawdown</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="days" class="form-label">Lookback Period (Days)</label>
+                        <input type="number" class="form-control" id="days" name="days" value="30" min="7" max="365">
+                    </div>
+                    
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-cogs me-1"></i> Start Optimization
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div id="optimization-results">
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-transparent">
+                    <h5 class="card-title mb-0">Optimization Results</h5>
+                </div>
+                <div class="card-body text-center py-5">
+                    <i class="fas fa-chart-line fa-3x text-muted mb-3"></i>
+                    <p class="text-muted">
+                        Run an optimization to see the results here.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Optimizations -->
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-transparent">
+                <h5 class="card-title mb-0">Recent Optimizations</h5>
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Strategy</th>
+                                <th>Sharpe Ratio</th>
+                                <th>Total Return</th>
+                                <th>Max Drawdown</th>
+                                <th>Win Rate</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recent-optimizations">
+                            <tr>
+                                <td colspan="7" class="text-center py-4">
+                                    <div class="text-muted">No recent optimizations found</div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Initialize form with data when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        loadStrategies();
+        loadAssets();
+        loadRecentOptimizations();
+    });
+    
+    // Load strategies for dropdown
+    function loadStrategies() {
+        fetch('/api/v1/strategies')
+            .then(response => response.json())
+            .then(strategies => {
+                const strategySelect = document.getElementById('strategy-select');
+                if (!strategySelect) return;
+                
+                // Clear existing options (except first)
+                while (strategySelect.options.length > 1) {
+                    strategySelect.remove(1);
+                }
+                
+                // Add options for each strategy
+                strategies.forEach(strategy => {
+                    const option = document.createElement('option');
+                    option.value = strategy.id;
+                    option.textContent = strategy.name;
+                    strategySelect.appendChild(option);
+                });
+                
+                // Add change event to load related assets
+                strategySelect.addEventListener('change', loadAssetsForStrategy);
+            })
+            .catch(error => {
+                console.error('Error loading strategies:', error);
+                showErrorMessage('Failed to load strategy data');
+            });
+    }
+    
+    // Load assets for multiselect
+    function loadAssets() {
+        fetch('/api/v1/assets')
+            .then(response => response.json())
+            .then(assets => {
+                populateAssetList(assets);
+            })
+            .catch(error => {
+                console.error('Error loading assets:', error);
+                showErrorMessage('Failed to load asset data');
+            });
+    }
+    
+    // Load assets specific to a strategy
+    function loadAssetsForStrategy() {
+        const strategyId = document.getElementById('strategy-select').value;
+        if (!strategyId) return;
+        
+        fetch(`/api/v1/strategies/${strategyId}`)
+            .then(response => response.json())
+            .then(strategy => {
+                // Get assets for the strategy's asset class
+                if (strategy.asset_class_id) {
+                    fetch(`/api/v1/assets?asset_class_id=${strategy.asset_class_id}`)
+                        .then(response => response.json())
+                        .then(assets => {
+                            populateAssetList(assets, true);  // Auto-select all
+                        })
+                        .catch(error => {
+                            console.error('Error loading assets for strategy:', error);
+                        });
+                }
+            })
+            .catch(error => {
+                console.error('Error loading strategy details:', error);
+            });
+    }
+    
+    // Populate asset list with checkboxes
+    function populateAssetList(assets, autoSelect = false) {
+        const assetList = document.getElementById('asset-list');
+        if (!assetList) return;
+        
+        // Clear existing items
+        assetList.innerHTML = '';
+        
+        if (!assets || assets.length === 0) {
+            assetList.innerHTML = `
+                <div class="list-group-item text-center text-muted">
+                    No assets available
+                </div>
+            `;
+            return;
+        }
+        
+        // Create HTML for each asset
+        assets.forEach(asset => {
+            const assetItem = document.createElement('div');
+            assetItem.className = 'list-group-item';
+            assetItem.innerHTML = `
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" value="${asset.id}" 
+                           id="asset-${asset.id}" name="asset_ids" ${autoSelect ? 'checked' : ''}>
+                    <label class="form-check-label" for="asset-${asset.id}">
+                        ${asset.symbol} - ${asset.name}
+                    </label>
+                </div>
+            `;
+            assetList.appendChild(assetItem);
+        });
+    }
+    
+    // Load recent optimizations
+    function loadRecentOptimizations() {
+        // Get selected strategy
+        const strategyId = document.getElementById('strategy-select').value;
+        if (!strategyId) return;
+        
+        fetch(`/api/v1/optimization/results/${strategyId}`)
+            .then(response => response.json())
+            .then(optimizations => {
+                const optimizationsContainer = document.getElementById('recent-optimizations');
+                if (!optimizationsContainer) return;
+                
+                if (!optimizations || optimizations.length === 0) {
+                    optimizationsContainer.innerHTML = `
+                        <tr>
+                            <td colspan="7" class="text-center py-4">
+                                <div class="text-muted">No recent optimizations found</div>
+                            </td>
+                        </tr>
+                    `;
+                    return;
+                }
+                
+                // Create HTML for each optimization
+                const optimizationsHtml = optimizations.map(opt => {
+                    return `
+                        <tr>
+                            <td>${new Date(opt.timestamp).toLocaleString()}</td>
+                            <td>Strategy #${opt.strategy_id}</td>
+                            <td>${opt.metrics?.sharpe_ratio?.toFixed(2) || 'N/A'}</td>
+                            <td>${opt.metrics?.total_return?.toFixed(2) || 'N/A'}%</td>
+                            <td>${opt.metrics?.max_drawdown?.toFixed(2) || 'N/A'}%</td>
+                            <td>${opt.metrics?.win_rate?.toFixed(2) || 'N/A'}%</td>
+                            <td>
+                                <button class="btn btn-sm btn-outline-primary view-optimization" 
+                                        data-optimization-id="${opt.id}">
+                                    <i class="fas fa-eye"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+                
+                optimizationsContainer.innerHTML = optimizationsHtml;
+                
+                // Add event listeners for view buttons
+                document.querySelectorAll('.view-optimization').forEach(button => {
+                    button.addEventListener('click', function() {
+                        const optimizationId = this.getAttribute('data-optimization-id');
+                        fetch(`/api/v1/optimization/${optimizationId}`)
+                            .then(response => response.json())
+                            .then(result => {
+                                displayOptimizationResults(result);
+                            })
+                            .catch(error => {
+                                console.error('Error fetching optimization details:', error);
+                            });
+                    });
+                });
+            })
+            .catch(error => {
+                console.error('Error loading recent optimizations:', error);
+            });
+    }
+    
+    // Strategy select change event
+    document.getElementById('strategy-select')?.addEventListener('change', loadRecentOptimizations);
+</script>
+{% endblock %}

@@ -1,0 +1,661 @@
+{% extends "layout.html" %}
+
+{% block title %}Settings | Portfolio Management System{% endblock %}
+
+{% block content %}
+<!-- Page Title -->
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1 class="h3 mb-0">Settings</h1>
+</div>
+
+<!-- Settings Tabs -->
+<div class="row">
+    <div class="col-md-3">
+        <div class="list-group mb-4">
+            <a href="#general-settings" class="list-group-item list-group-item-action active" data-bs-toggle="list">
+                <i class="fas fa-cog me-2"></i> General Settings
+            </a>
+            <a href="#api-settings" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                <i class="fas fa-key me-2"></i> API Configuration
+            </a>
+            <a href="#trading-settings" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                <i class="fas fa-exchange-alt me-2"></i> Trading Settings
+            </a>
+            <a href="#notification-settings" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                <i class="fas fa-bell me-2"></i> Notifications
+            </a>
+            <a href="#system-info" class="list-group-item list-group-item-action" data-bs-toggle="list">
+                <i class="fas fa-info-circle me-2"></i> System Information
+            </a>
+        </div>
+    </div>
+    
+    <div class="col-md-9">
+        <div class="tab-content">
+            <!-- General Settings -->
+            <div class="tab-pane fade show active" id="general-settings">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-transparent">
+                        <h5 class="card-title mb-0">General Settings</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="general-settings-form">
+                            <div class="mb-3">
+                                <label for="default-currency" class="form-label">Default Currency</label>
+                                <select class="form-select" id="default-currency" name="default_currency">
+                                    <option value="USD" selected>USD</option>
+                                    <option value="EUR">EUR</option>
+                                    <option value="GBP">GBP</option>
+                                    <option value="JPY">JPY</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="time-zone" class="form-label">Time Zone</label>
+                                <select class="form-select" id="time-zone" name="time_zone">
+                                    <option value="UTC" selected>UTC</option>
+                                    <option value="America/New_York">Eastern Time (ET)</option>
+                                    <option value="America/Chicago">Central Time (CT)</option>
+                                    <option value="America/Denver">Mountain Time (MT)</option>
+                                    <option value="America/Los_Angeles">Pacific Time (PT)</option>
+                                    <option value="Europe/London">London (GMT)</option>
+                                    <option value="Asia/Tokyo">Tokyo (JST)</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="date-format" class="form-label">Date Format</label>
+                                <select class="form-select" id="date-format" name="date_format">
+                                    <option value="YYYY-MM-DD" selected>YYYY-MM-DD</option>
+                                    <option value="MM/DD/YYYY">MM/DD/YYYY</option>
+                                    <option value="DD/MM/YYYY">DD/MM/YYYY</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="dark-mode" name="dark_mode" checked>
+                                    <label class="form-check-label" for="dark-mode">Dark Mode</label>
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary">Save General Settings</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- API Configuration -->
+            <div class="tab-pane fade" id="api-settings">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-transparent">
+                        <h5 class="card-title mb-0">API Configuration</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="api-settings-form">
+                            <div class="mb-3">
+                                <label for="alpaca-api-key" class="form-label">Alpaca API Key</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="alpaca-api-key" name="alpaca_api_key" value="********" autocomplete="off">
+                                    <button class="btn btn-outline-secondary toggle-password" type="button" data-target="alpaca-api-key">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="form-text">Your Alpaca API key for trading operations.</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="alpaca-secret-key" class="form-label">Alpaca Secret Key</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="alpaca-secret-key" name="alpaca_secret_key" value="********" autocomplete="off">
+                                    <button class="btn btn-outline-secondary toggle-password" type="button" data-target="alpaca-secret-key">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </div>
+                                <div class="form-text">Your Alpaca API secret key.</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="alpaca-endpoint" class="form-label">Alpaca Endpoint</label>
+                                <select class="form-select" id="alpaca-endpoint" name="alpaca_endpoint">
+                                    <option value="https://paper-api.alpaca.markets" selected>Paper Trading</option>
+                                    <option value="https://api.alpaca.markets">Live Trading</option>
+                                </select>
+                                <div class="form-text">Select paper trading for testing or live trading for real trades.</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <button type="button" id="test-api-connection" class="btn btn-outline-secondary">
+                                    <i class="fas fa-plug me-1"></i> Test Connection
+                                </button>
+                                <span id="connection-status" class="ms-2"></span>
+                            </div>
+                            
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary">Save API Settings</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Trading Settings -->
+            <div class="tab-pane fade" id="trading-settings">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-transparent">
+                        <h5 class="card-title mb-0">Trading Settings</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="trading-settings-form">
+                            <div class="mb-3">
+                                <label for="default-risk-percent" class="form-label">Default Risk Per Trade (%)</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="default-risk-percent" name="default_risk_percent" value="2" min="0.1" max="10" step="0.1">
+                                    <span class="input-group-text">%</span>
+                                </div>
+                                <div class="form-text">Maximum percentage of portfolio value to risk on any single trade.</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="rebalance-threshold" class="form-label">Rebalance Threshold (%)</label>
+                                <div class="input-group">
+                                    <input type="number" class="form-control" id="rebalance-threshold" name="rebalance_threshold" value="5" min="1" max="20" step="0.5">
+                                    <span class="input-group-text">%</span>
+                                </div>
+                                <div class="form-text">Deviation threshold that triggers portfolio rebalancing.</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="default-order-type" class="form-label">Default Order Type</label>
+                                <select class="form-select" id="default-order-type" name="default_order_type">
+                                    <option value="market" selected>Market</option>
+                                    <option value="limit">Limit</option>
+                                    <option value="stop">Stop</option>
+                                    <option value="stop_limit">Stop Limit</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="enable-trading" name="enable_trading" checked>
+                                    <label class="form-check-label" for="enable-trading">Enable Automated Trading</label>
+                                </div>
+                                <div class="form-text">When disabled, trade signals will be generated but not executed.</div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="enable-fractional-shares" name="enable_fractional_shares" checked>
+                                    <label class="form-check-label" for="enable-fractional-shares">Enable Fractional Shares</label>
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary">Save Trading Settings</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Notification Settings -->
+            <div class="tab-pane fade" id="notification-settings">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-transparent">
+                        <h5 class="card-title mb-0">Notification Settings</h5>
+                    </div>
+                    <div class="card-body">
+                        <form id="notification-settings-form">
+                            <div class="mb-3">
+                                <div class="form-check form-switch">
+                                    <input class="form-check-input" type="checkbox" id="email-notifications" name="email_notifications" checked>
+                                    <label class="form-check-label" for="email-notifications">Email Notifications</label>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="email-address" class="form-label">Email Address</label>
+                                <input type="email" class="form-control" id="email-address" name="email_address" placeholder="your@email.com">
+                            </div>
+                            
+                            <h6 class="mt-4 mb-3">Notification Events</h6>
+                            
+                            <div class="mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="notify-trades" name="notify_trades" checked>
+                                    <label class="form-check-label" for="notify-trades">Trade Executions</label>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="notify-rebalance" name="notify_rebalance" checked>
+                                    <label class="form-check-label" for="notify-rebalance">Portfolio Rebalancing</label>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="notify-optimization" name="notify_optimization" checked>
+                                    <label class="form-check-label" for="notify-optimization">Strategy Optimization</label>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-2">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="notify-errors" name="notify_errors" checked>
+                                    <label class="form-check-label" for="notify-errors">System Errors</label>
+                                </div>
+                            </div>
+                            
+                            <div class="d-grid mt-4">
+                                <button type="submit" class="btn btn-primary">Save Notification Settings</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- System Information -->
+            <div class="tab-pane fade" id="system-info">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-transparent">
+                        <h5 class="card-title mb-0">System Information</h5>
+                    </div>
+                    <div class="card-body">
+                        <div id="system-info-container">
+                            <div class="text-center p-4">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p class="mt-2 text-muted">Loading system information...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card border-0 shadow-sm mt-4">
+                    <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+                        <h5 class="card-title mb-0">Database Statistics</h5>
+                        <button id="refresh-db-stats" class="btn btn-sm btn-outline-secondary">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                    <div class="card-body">
+                        <div id="db-stats-container">
+                            <div class="text-center p-4">
+                                <div class="spinner-border text-primary" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p class="mt-2 text-muted">Loading database statistics...</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Wait for DOM to be ready
+    document.addEventListener('DOMContentLoaded', function() {
+        // Load system information
+        loadSystemInfo();
+        
+        // Load database statistics
+        loadDatabaseStats();
+        
+        // Toggle password visibility
+        document.querySelectorAll('.toggle-password').forEach(button => {
+            button.addEventListener('click', function() {
+                const targetId = this.getAttribute('data-target');
+                const inputField = document.getElementById(targetId);
+                
+                if (inputField.type === 'password') {
+                    inputField.type = 'text';
+                    this.innerHTML = '<i class="fas fa-eye-slash"></i>';
+                } else {
+                    inputField.type = 'password';
+                    this.innerHTML = '<i class="fas fa-eye"></i>';
+                }
+            });
+        });
+        
+        // Test API connection
+        document.getElementById('test-api-connection')?.addEventListener('click', testApiConnection);
+        
+        // Refresh database stats
+        document.getElementById('refresh-db-stats')?.addEventListener('click', loadDatabaseStats);
+        
+        // Form submission handlers
+        document.getElementById('general-settings-form')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            saveSettings('general', this);
+        });
+        
+        document.getElementById('api-settings-form')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            saveSettings('api', this);
+        });
+        
+        document.getElementById('trading-settings-form')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            saveSettings('trading', this);
+        });
+        
+        document.getElementById('notification-settings-form')?.addEventListener('submit', function(e) {
+            e.preventDefault();
+            saveSettings('notification', this);
+        });
+    });
+    
+    // Load system information
+    function loadSystemInfo() {
+        const container = document.getElementById('system-info-container');
+        if (!container) return;
+        
+        fetch('/api/v1/health')
+            .then(response => response.json())
+            .then(data => {
+                // Create HTML for system info
+                let html = `
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>System Status</h6>
+                            <div class="mb-3">
+                                <span class="badge ${data.status === 'ok' ? 'bg-success' : 'bg-danger'} me-2">
+                                    <i class="fas ${data.status === 'ok' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                                    ${data.status === 'ok' ? 'Healthy' : 'Error'}
+                                </span>
+                                Last checked: ${new Date(data.timestamp).toLocaleString()}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <strong>Version:</strong> ${data.version}
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h6>Environment</h6>
+                            <table class="table table-sm table-borderless">
+                                <tbody>
+                `;
+                
+                // Add environment variables status
+                for (const [key, value] of Object.entries(data.components.environment)) {
+                    html += `
+                        <tr>
+                            <td><strong>${key}:</strong></td>
+                            <td>
+                                <span class="badge ${value === 'missing' ? 'bg-danger' : 'bg-success'}">
+                                    ${value}
+                                </span>
+                            </td>
+                        </tr>
+                    `;
+                }
+                
+                html += `
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="row mt-3">
+                        <div class="col-12">
+                            <h6>Components</h6>
+                            <table class="table table-sm">
+                                <tbody>
+                `;
+                
+                // Add components status
+                for (const [key, value] of Object.entries(data.components)) {
+                    if (key !== 'environment') {
+                        html += `
+                            <tr>
+                                <td><strong>${key}:</strong></td>
+                                <td>
+                                    <span class="badge ${value === 'ok' ? 'bg-success' : 'bg-danger'}">
+                                        ${value}
+                                    </span>
+                                </td>
+                            </tr>
+                        `;
+                    }
+                }
+                
+                html += `
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+                
+                container.innerHTML = html;
+            })
+            .catch(error => {
+                console.error('Error loading system information:', error);
+                container.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        Failed to load system information. Please try again later.
+                    </div>
+                `;
+            });
+    }
+    
+    // Load database statistics
+    function loadDatabaseStats() {
+        const container = document.getElementById('db-stats-container');
+        if (!container) return;
+        
+        // Show loading
+        container.innerHTML = `
+            <div class="text-center p-4">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Loading...</span>
+                </div>
+                <p class="mt-2 text-muted">Loading database statistics...</p>
+            </div>
+        `;
+        
+        // Fetch database stats from API
+        fetch('/api/v1/admin/db-stats')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to load database statistics');
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Create HTML for stats
+                let html = `
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h6>Table Counts</h6>
+                            <table class="table table-sm">
+                                <tbody>
+                `;
+                
+                // Add table counts
+                for (const [table, count] of Object.entries(data.table_counts)) {
+                    html += `
+                        <tr>
+                            <td>${table}</td>
+                            <td>${count}</td>
+                        </tr>
+                    `;
+                }
+                
+                html += `
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <h6>Database Info</h6>
+                            <table class="table table-sm">
+                                <tbody>
+                                    <tr>
+                                        <td>Database Size</td>
+                                        <td>${data.db_size || 'Unknown'}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Engine</td>
+                                        <td>${data.engine || 'SQLite'}</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Last Backup</td>
+                                        <td>${data.last_backup ? new Date(data.last_backup).toLocaleString() : 'Never'}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                `;
+                
+                container.innerHTML = html;
+            })
+            .catch(error => {
+                console.error('Error loading database statistics:', error);
+                container.innerHTML = `
+                    <div class="alert alert-danger">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        Failed to load database statistics. Error: ${error.message}
+                    </div>
+                `;
+            });
+    }
+    
+    // Test API connection
+    function testApiConnection() {
+        const button = document.getElementById('test-api-connection');
+        const statusSpan = document.getElementById('connection-status');
+        
+        // Show loading
+        button.disabled = true;
+        button.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Testing...';
+        statusSpan.innerHTML = '';
+        
+        // Get API settings from form
+        const apiKey = document.getElementById('alpaca-api-key').value;
+        const secretKey = document.getElementById('alpaca-secret-key').value;
+        const endpoint = document.getElementById('alpaca-endpoint').value;
+        
+        // Skip test if using masked values
+        if (apiKey === '********' || secretKey === '********') {
+            statusSpan.innerHTML = `
+                <span class="text-warning">
+                    <i class="fas fa-exclamation-triangle me-1"></i>
+                    Cannot test with masked keys. Please enter actual keys first.
+                </span>
+            `;
+            button.disabled = false;
+            button.innerHTML = '<i class="fas fa-plug me-1"></i> Test Connection';
+            return;
+        }
+        
+        // Testing connection via API
+        fetch('/api/v1/admin/test-connection', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                api_key: apiKey,
+                secret_key: secretKey,
+                endpoint: endpoint
+            })
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Connection test failed');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    statusSpan.innerHTML = `
+                        <span class="text-success">
+                            <i class="fas fa-check-circle me-1"></i>
+                            Connection successful! Account ID: ${data.account_id}
+                        </span>
+                    `;
+                } else {
+                    statusSpan.innerHTML = `
+                        <span class="text-danger">
+                            <i class="fas fa-times-circle me-1"></i>
+                            Connection failed: ${data.error}
+                        </span>
+                    `;
+                }
+            })
+            .catch(error => {
+                console.error('Error testing API connection:', error);
+                statusSpan.innerHTML = `
+                    <span class="text-danger">
+                        <i class="fas fa-times-circle me-1"></i>
+                        Connection failed: ${error.message}
+                    </span>
+                `;
+            })
+            .finally(() => {
+                button.disabled = false;
+                button.innerHTML = '<i class="fas fa-plug me-1"></i> Test Connection';
+            });
+    }
+    
+    // Save settings
+    function saveSettings(type, form) {
+        const formData = new FormData(form);
+        const settings = {};
+        
+        // Convert form data to object
+        for (const [key, value] of formData.entries()) {
+            // Handle checkboxes
+            if (form.elements[key].type === 'checkbox') {
+                settings[key] = form.elements[key].checked;
+            } else {
+                settings[key] = value;
+            }
+        }
+        
+        // Show loading
+        const submitBtn = form.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Saving...';
+        
+        // Save settings via API
+        fetch(`/api/v1/admin/settings/${type}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(settings)
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to save settings');
+                }
+                return response.json();
+            })
+            .then(data => {
+                showSuccessMessage(`${type.charAt(0).toUpperCase() + type.slice(1)} settings saved successfully!`);
+            })
+            .catch(error => {
+                console.error(`Error saving ${type} settings:`, error);
+                showErrorMessage(`Failed to save ${type} settings: ${error.message}`);
+            })
+            .finally(() => {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalText;
+            });
+    }
+</script>
+{% endblock %}
