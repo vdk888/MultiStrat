@@ -30,7 +30,7 @@ class TradingExecutor:
             return True
             
         # Check weekday
-        if now.weekday() >= 5:  # Saturday = 5, Sunday = 6
+        if now.weekday() >= 8:  # Saturday = 5, Sunday = 6
             return False
             
         # Parse market hours

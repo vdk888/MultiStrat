@@ -84,6 +84,18 @@ TRADING_SYMBOLS = {
             'timezone': 'UTC'
         }
     },
+      'BTC/USD': {
+        'name': 'Bitcoin',
+        'market': 'CRYPTO',
+        'yfinance': 'BTC-USD',
+        'interval': default_interval_yahoo,
+        'market_hours': {
+            'start': '00:00',
+            'end': '23:59',
+            'timezone': 'UTC'
+        }
+    },
+    
     'QQQ': {
         'name': 'Invesco QQQ Trust',
         'market': 'US_EQUITY',
