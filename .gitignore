@@ -1,0 +1,19 @@
+# Environment variables
+.env
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+env/
+venv/
+
+# Logs
+*.log
+*.csv
+
+# IDE
+.vscode/
+.idea/
+
+best_params.json

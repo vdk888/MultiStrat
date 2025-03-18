@@ -1,3 +1,0 @@
-Before each step, read @implementation-plan - progress.md to see what has been implemented and what remains to be done, to ensure consistency.
-At each step, start by asking the user to clarify all the details of the current mission, services to be used, preferences, etc. Do not start coding before user's approval.
-After each step, update @implementation-plan - progress.md to add any new features implemented, methods used, inputs and outputs.

@@ -11,7 +11,5 @@
     pkgs.ffmpeg-full
     pkgs.cairo
     pkgs.glibcLocales
-    pkgs.postgresql
-    pkgs.openssl
   ];
 }
