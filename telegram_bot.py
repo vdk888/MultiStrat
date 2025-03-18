@@ -355,6 +355,8 @@ Unrealized P&L: ${float(position.unrealized_pl):.2f} ({float(position.unrealized
 💼 Portfolio Summary:
 Total Position Value: ${total_market_value:.2f}
 Total Account Exposure: {total_exposure:.2f}%
+Cash Balance: ${float(account.cash):.2f}
+Total Portfolio Value: ${float(account.portfolio_value):.2f}
 Total Unrealized P&L: ${total_pnl:.2f}
 
 Open Positions:

@@ -5,14 +5,21 @@ import pandas as pd
 from alpaca.trading.client import TradingClient
 from datetime import datetime
 import pytz
-from config import TRADING_SYMBOLS
+from config import TRADING_SYMBOLS, lookback_days_param, param_grid, ALPACA_PAPER
 from trading import TradingExecutor
 from strategy import TradingStrategy
-from backtest_individual import run_backtest
+from backtest_individual import run_backtest, create_backtest_plot, find_best_params
+from indicators import get_default_params
 import json
 import logging
 import threading
 import time
+from run_market_hours import is_market_hours
+from telegram_bot import TradingBot
+from visualization import create_strategy_plot, create_multi_symbol_plot
+from backtest import run_portfolio_backtest, create_portfolio_backtest_plot, create_portfolio_with_prices_plot
+from portfolio import get_portfolio_history, create_portfolio_plot
+from utils import get_api_symbol, get_display_symbol
 
 # Configure logging
 logging.basicConfig(
@@ -422,7 +429,7 @@ def show_plot():
 
     st.title("Strategy Visualization")
     symbol = st.selectbox("Select a symbol", st.session_state.trading_manager.symbols)
-    days = st.number_input("Enter number of days", min_value=1, max_value=30, value=5)
+    days = st.number_input("Enter number of days", min_value=1, max_value=int(lookback_days_param), value=min(30, int(lookback_days_param)))
     if st.button("Generate Plot"):
         try:
             buf, stats = create_strategy_plot(symbol, days)
@@ -442,7 +449,7 @@ def show_backtest():
 
     st.title("Backtest Simulation")
     symbol = st.selectbox("Select a symbol", ["Portfolio"] + st.session_state.trading_manager.symbols)
-    days = st.number_input("Enter number of days", min_value=1, max_value=30, value=5)
+    days = st.number_input("Enter number of days", min_value=1, max_value=int(lookback_days_param), value=min(30, int(lookback_days_param)))
     if st.button("Run Backtest"):
         try:
             if symbol == "Portfolio":

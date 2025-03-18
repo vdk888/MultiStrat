@@ -4,23 +4,20 @@ import pandas as pd
 from datetime import datetime, timedelta
 import pytz
 import yfinance as yf
-from dotenv import load_dotenv
-
-load_dotenv()
 
 ALPACA_PAPER = True
-ALPACA_API_KEY = os.getenv('ALPACA_API_KEY_paper')
-ALPACA_SECRET_KEY = os.getenv('ALPACA_SECRET_KEY_paper')
+ALPACA_API_KEY = os.getenv('ALPACA_API_KEY')
+ALPACA_SECRET_KEY = os.getenv('ALPACA_SECRET_KEY')
 
 if not ALPACA_API_KEY or not ALPACA_SECRET_KEY:
     raise ValueError("Alpaca API credentials not found in environment variables")
 
 # Default trading parameters
 DEFAULT_RISK_PERCENT = 0.95
-DEFAULT_INTERVAL = '1h' # available intervals: 1min, 5min, 15min, 30min, 1h, 4h, 1d
-DEFAULT_INTERVAL_WEEKLY = '4h'
+DEFAULT_INTERVAL = '1D' # available intervals: 1min, 5min, 15min, 30min, 1h, 4h, 1d
+DEFAULT_INTERVAL_WEEKLY = '1W'
 
-default_interval_yahoo = '1h' # available intervals: 1m, 5m, 15m, 30m, 1h, 4h, 1d
+default_interval_yahoo = '1D' # available intervals: 1m, 5m, 15m, 30m, 1h, 4h, 1d
 
 # Bars per day for each interval
 BARS_PER_DAY = {
@@ -30,7 +27,7 @@ BARS_PER_DAY = {
     '30m': 48,
     '60m': 24,
     '1h': 24,
-    '1d': 1
+    '1D': 1
 }
 
 # Maximum data points per request
@@ -51,6 +48,8 @@ def get_max_days(interval: str) -> int:
     max_days = MAX_DATA_POINTS // bars_per_day
     if interval == '1h':
         return min(730, max_days)
+    elif interval == '1D':
+        return min(1825, max_days)  # Allow up to 5 years of daily data
     return min(60, max_days)
 
 # Interval to maximum days mapping
@@ -73,11 +72,11 @@ lookback_days_param = default_backtest_interval/4
 
 # Trading symbols configuration
 TRADING_SYMBOLS = {
-    # Cryptocurrencies
-    'BTC/USD': {
-        'name': 'Bitcoin',
-        'market': 'CRYPTO',
-        'yfinance': 'BTC-USD',
+    # Group 1: Major US Equity Market Indices
+    'SPY': {
+        'name': 'SPDR S&P 500 ETF Trust',
+        'market': 'US_EQUITY',
+        'yfinance': 'SPY',
         'interval': default_interval_yahoo,
         'market_hours': {
             'start': '00:00',
@@ -85,10 +84,10 @@ TRADING_SYMBOLS = {
             'timezone': 'UTC'
         }
     },
-    'ETH/USD': {
-        'name': 'Ethereum',
-        'market': 'CRYPTO',
-        'yfinance': 'ETH-USD',
+    'QQQ': {
+        'name': 'Invesco QQQ Trust',
+        'market': 'US_EQUITY',
+        'yfinance': 'QQQ',
         'interval': default_interval_yahoo,
         'market_hours': {
             'start': '00:00',
@@ -96,21 +95,10 @@ TRADING_SYMBOLS = {
             'timezone': 'UTC'
         }
     },
-    'SOL/USD': {
-        'name': 'Solana',
-        'market': 'CRYPTO',
-        'yfinance': 'SOL-USD',
-        'interval': default_interval_yahoo,       
-        'market_hours': {
-            'start': '00:00',
-            'end': '23:59',
-            'timezone': 'UTC'
-        }
-    }, 
-    'AVAX/USD': {
-        'name': 'Avalanche',
-        'market': 'CRYPTO',
-        'yfinance': 'AVAX-USD',
+    'DIA': {
+        'name': 'SPDR Dow Jones Industrial Average ETF',
+        'market': 'US_EQUITY',
+        'yfinance': 'DIA',
         'interval': default_interval_yahoo,
         'market_hours': {
             'start': '00:00',
@@ -118,10 +106,10 @@ TRADING_SYMBOLS = {
             'timezone': 'UTC'
         }
     },
-    'DOT/USD': {
-        'name': 'Polkadot',
-        'market': 'CRYPTO',
-        'yfinance': 'DOT-USD',
+    'IWM': {
+        'name': 'iShares Russell 2000 ETF',
+        'market': 'US_EQUITY',
+        'yfinance': 'IWM',
         'interval': default_interval_yahoo,
         'market_hours': {
             'start': '00:00',
@@ -129,10 +117,10 @@ TRADING_SYMBOLS = {
             'timezone': 'UTC'
         }
     },
-    'LINK/USD': {
-        'name': 'Chainlink',
-        'market': 'CRYPTO',
-        'yfinance': 'LINK-USD',
+    'VTI': {
+        'name': 'Vanguard Total Stock Market ETF',
+        'market': 'US_EQUITY',
+        'yfinance': 'VTI',
         'interval': default_interval_yahoo,
         'market_hours': {
             'start': '00:00',
@@ -140,10 +128,10 @@ TRADING_SYMBOLS = {
             'timezone': 'UTC'
         }
     },
-    'DOGE/USD': {
-        'name': 'Dogecoin',
-        'market': 'CRYPTO',
-        'yfinance': 'DOGE-USD',
+    'RSP': {
+        'name': 'Invesco S&P 500 Equal Weight ETF',
+        'market': 'US_EQUITY',
+        'yfinance': 'RSP',
         'interval': default_interval_yahoo,
         'market_hours': {
             'start': '00:00',
@@ -151,10 +139,10 @@ TRADING_SYMBOLS = {
             'timezone': 'UTC'
         }
     },
-    'AAVE/USD': {
-        'name': 'Aave',
-        'market': 'CRYPTO',
-        'yfinance': 'AAVE-USD',
+    'IJH': {
+        'name': 'iShares Core S&P Mid-Cap ETF',
+        'market': 'US_EQUITY',
+        'yfinance': 'IJH',
         'interval': default_interval_yahoo,
         'market_hours': {
             'start': '00:00',
@@ -162,10 +150,10 @@ TRADING_SYMBOLS = {
             'timezone': 'UTC'
         }
     },
-    'UNI/USD': {
-        'name': 'Uniswap',
-        'market': 'CRYPTO',
-        'yfinance': 'UNI7083-USD',
+    'OEF': {
+        'name': 'iShares S&P 100 ETF',
+        'market': 'US_EQUITY',
+        'yfinance': 'OEF',
         'interval': default_interval_yahoo,
         'market_hours': {
             'start': '00:00',
@@ -173,10 +161,10 @@ TRADING_SYMBOLS = {
             'timezone': 'UTC'
         }
     },
-    'LTC/USD': {
-        'name': 'Litecoin',
-        'market': 'CRYPTO',
-        'yfinance': 'LTC-USD',
+    'VB': {
+        'name': 'Vanguard Small-Cap ETF',
+        'market': 'US_EQUITY',
+        'yfinance': 'VB',
         'interval': default_interval_yahoo,
         'market_hours': {
             'start': '00:00',
@@ -184,10 +172,10 @@ TRADING_SYMBOLS = {
             'timezone': 'UTC'
         }
     },
-    'SHIB/USD': {
-        'name': 'Shiba Inu',
-        'market': 'CRYPTO',
-        'yfinance': 'SHIB-USD',
+    'VO': {
+        'name': 'Vanguard Mid-Cap ETF',
+        'market': 'US_EQUITY',
+        'yfinance': 'VO',
         'interval': default_interval_yahoo,
         'market_hours': {
             'start': '00:00',
@@ -195,10 +183,10 @@ TRADING_SYMBOLS = {
             'timezone': 'UTC'
         }
     },
-    'BAT/USD': {
-        'name': 'Basic Attention Token',
-        'market': 'CRYPTO',
-        'yfinance': 'BAT-USD',
+    'MAGS': {
+        'name': 'Roundhill Magnificent Seven ETF',
+        'market': 'US_EQUITY',
+        'yfinance': 'MAGS',
         'interval': default_interval_yahoo,
         'market_hours': {
             'start': '00:00',
@@ -206,10 +194,10 @@ TRADING_SYMBOLS = {
             'timezone': 'UTC'
         }
     },
-    'BCH/USD': {
-        'name': 'Bitcoin Cash',
-        'market': 'CRYPTO',
-        'yfinance': 'BCH-USD',
+    'ESGU': {
+        'name': 'iShares ESG Aware MSCI USA ETF',
+        'market': 'US_EQUITY',
+        'yfinance': 'ESGU',
         'interval': default_interval_yahoo,
         'market_hours': {
             'start': '00:00',
@@ -217,10 +205,12 @@ TRADING_SYMBOLS = {
             'timezone': 'UTC'
         }
     },
-    'CRV/USD': {
-        'name': 'Curve DAO Token',
-        'market': 'CRYPTO',
-        'yfinance': 'CRV-USD',
+
+    # Group 2: US Equity Styles
+    'VUG': {
+        'name': 'Vanguard Growth ETF',
+        'market': 'US_EQUITY',
+        'yfinance': 'VUG',
         'interval': default_interval_yahoo,
         'market_hours': {
             'start': '00:00',
@@ -228,10 +218,10 @@ TRADING_SYMBOLS = {
             'timezone': 'UTC'
         }
     },
-    'GRT/USD': {
-        'name': 'The Graph',
-        'market': 'CRYPTO',
-        'yfinance': 'GRT6719-USD',
+    'VTV': {
+        'name': 'Vanguard Value ETF',
+        'market': 'US_EQUITY',
+        'yfinance': 'VTV',
         'interval': default_interval_yahoo,
         'market_hours': {
             'start': '00:00',
@@ -239,10 +229,10 @@ TRADING_SYMBOLS = {
             'timezone': 'UTC'
         }
     },
-    'MKR/USD': {
-        'name': 'Maker',
-        'market': 'CRYPTO',
-        'yfinance': 'MKR-USD',
+    'SPLV': {
+        'name': 'Invesco S&P 500 Low Volatility ETF',
+        'market': 'US_EQUITY',
+        'yfinance': 'SPLV',
         'interval': default_interval_yahoo,
         'market_hours': {
             'start': '00:00',
@@ -250,10 +240,10 @@ TRADING_SYMBOLS = {
             'timezone': 'UTC'
         }
     },
-    'SUSHI/USD': {
-        'name': 'SushiSwap',
-        'market': 'CRYPTO',
-        'yfinance': 'SUSHI-USD',
+    'SPHQ': {
+        'name': 'Invesco S&P 500 Quality ETF',
+        'market': 'US_EQUITY',
+        'yfinance': 'SPHQ',
         'interval': default_interval_yahoo,
         'market_hours': {
             'start': '00:00',
@@ -261,10 +251,10 @@ TRADING_SYMBOLS = {
             'timezone': 'UTC'
         }
     },
-    'XTZ/USD': {
-        'name': 'Tezos',
-        'market': 'CRYPTO',
-        'yfinance': 'XTZ-USD',
+    'MOAT': {
+        'name': 'VanEck Morningstar Wide Moat ETF',
+        'market': 'US_EQUITY',
+        'yfinance': 'MOAT',
         'interval': default_interval_yahoo,
         'market_hours': {
             'start': '00:00',
@@ -272,10 +262,10 @@ TRADING_SYMBOLS = {
             'timezone': 'UTC'
         }
     },
-    'YFI/USD': {
-        'name': 'yearn.finance',
-        'market': 'CRYPTO',
-        'yfinance': 'YFI-USD',
+    'SPMO': {
+        'name': 'Invesco S&P 500 Momentum ETF',
+        'market': 'US_EQUITY',
+        'yfinance': 'SPMO',
         'interval': default_interval_yahoo,
         'market_hours': {
             'start': '00:00',
@@ -283,10 +273,210 @@ TRADING_SYMBOLS = {
             'timezone': 'UTC'
         }
     },
-    'XRP/USD': {
-        'name': 'Ripple',
-        'market': 'CRYPTO',
-        'yfinance': 'XRP-USD',
+    'COWZ': {
+        'name': 'Pacer US Cash Cows 100 ETF',
+        'market': 'US_EQUITY',
+        'yfinance': 'COWZ',
+        'interval': default_interval_yahoo,
+        'market_hours': {
+            'start': '00:00',
+            'end': '23:59',
+            'timezone': 'UTC'
+        }
+    },
+    'IWO': {
+        'name': 'iShares Russell 2000 Growth ETF',
+        'market': 'US_EQUITY',
+        'yfinance': 'IWO',
+        'interval': default_interval_yahoo,
+        'market_hours': {
+            'start': '00:00',
+            'end': '23:59',
+            'timezone': 'UTC'
+        }
+    },
+    'IWN': {
+        'name': 'iShares Russell 2000 Value ETF',
+        'market': 'US_EQUITY',
+        'yfinance': 'IWN',
+        'interval': default_interval_yahoo,
+        'market_hours': {
+            'start': '00:00',
+            'end': '23:59',
+            'timezone': 'UTC'
+        }
+    },
+    'AVUV': {
+        'name': 'Avantis U.S. Small Cap Value ETF',
+        'market': 'US_EQUITY',
+        'yfinance': 'AVUV',
+        'interval': default_interval_yahoo,
+        'market_hours': {
+            'start': '00:00',
+            'end': '23:59',
+            'timezone': 'UTC'
+        }
+    },
+    'VOT': {
+        'name': 'Vanguard Mid-Cap Growth ETF',
+        'market': 'US_EQUITY',
+        'yfinance': 'VOT',
+        'interval': default_interval_yahoo,
+        'market_hours': {
+            'start': '00:00',
+            'end': '23:59',
+            'timezone': 'UTC'
+        }
+    },
+    'MGK': {
+        'name': 'Vanguard Mega Cap Growth ETF',
+        'market': 'US_EQUITY',
+        'yfinance': 'MGK',
+        'interval': default_interval_yahoo,
+        'market_hours': {
+            'start': '00:00',
+            'end': '23:59',
+            'timezone': 'UTC'
+        }
+    },
+
+    # Group 3: US Sector ETFs
+    'XLF': {
+        'name': 'Financial Select Sector SPDR Fund',
+        'market': 'US_EQUITY',
+        'yfinance': 'XLF',
+        'interval': default_interval_yahoo,
+        'market_hours': {
+            'start': '00:00',
+            'end': '23:59',
+            'timezone': 'UTC'
+        }
+    },
+    'XLK': {
+        'name': 'Technology Select Sector SPDR Fund',
+        'market': 'US_EQUITY',
+        'yfinance': 'XLK',
+        'interval': default_interval_yahoo,
+        'market_hours': {
+            'start': '00:00',
+            'end': '23:59',
+            'timezone': 'UTC'
+        }
+    },
+    'XLE': {
+        'name': 'Energy Select Sector SPDR Fund',
+        'market': 'US_EQUITY',
+        'yfinance': 'XLE',
+        'interval': default_interval_yahoo,
+        'market_hours': {
+            'start': '00:00',
+            'end': '23:59',
+            'timezone': 'UTC'
+        }
+    },
+    'XLV': {
+        'name': 'Health Care Select Sector SPDR Fund',
+        'market': 'US_EQUITY',
+        'yfinance': 'XLV',
+        'interval': default_interval_yahoo,
+        'market_hours': {
+            'start': '00:00',
+            'end': '23:59',
+            'timezone': 'UTC'
+        }
+    },
+    'XLI': {
+        'name': 'Industrial Select Sector SPDR Fund',
+        'market': 'US_EQUITY',
+        'yfinance': 'XLI',
+        'interval': default_interval_yahoo,
+        'market_hours': {
+            'start': '00:00',
+            'end': '23:59',
+            'timezone': 'UTC'
+        }
+    },
+    'XLP': {
+        'name': 'Consumer Staples Select Sector SPDR Fund',
+        'market': 'US_EQUITY',
+        'yfinance': 'XLP',
+        'interval': default_interval_yahoo,
+        'market_hours': {
+            'start': '00:00',
+            'end': '23:59',
+            'timezone': 'UTC'
+        }
+    },
+    'XLY': {
+        'name': 'Consumer Discretionary Select Sector SPDR Fund',
+        'market': 'US_EQUITY',
+        'yfinance': 'XLY',
+        'interval': default_interval_yahoo,
+        'market_hours': {
+            'start': '00:00',
+            'end': '23:59',
+            'timezone': 'UTC'
+        }
+    },
+    'XLU': {
+        'name': 'Utilities Select Sector SPDR Fund',
+        'market': 'US_EQUITY',
+        'yfinance': 'XLU',
+        'interval': default_interval_yahoo,
+        'market_hours': {
+            'start': '00:00',
+            'end': '23:59',
+            'timezone': 'UTC'
+        }
+    },
+    'XLC': {
+        'name': 'Communication Services Select Sector SPDR Fund',
+        'market': 'US_EQUITY',
+        'yfinance': 'XLC',
+        'interval': default_interval_yahoo,
+        'market_hours': {
+            'start': '00:00',
+            'end': '23:59',
+            'timezone': 'UTC'
+        }
+    },
+    'XLRE': {
+        'name': 'Real Estate Select Sector SPDR Fund',
+        'market': 'US_EQUITY',
+        'yfinance': 'XLRE',
+        'interval': default_interval_yahoo,
+        'market_hours': {
+            'start': '00:00',
+            'end': '23:59',
+            'timezone': 'UTC'
+        }
+    },
+    'KRE': {
+        'name': 'SPDR S&P Regional Banking ETF',
+        'market': 'US_EQUITY',
+        'yfinance': 'KRE',
+        'interval': default_interval_yahoo,
+        'market_hours': {
+            'start': '00:00',
+            'end': '23:59',
+            'timezone': 'UTC'
+        }
+    },
+    'SMH': {
+        'name': 'VanEck Semiconductor ETF',
+        'market': 'US_EQUITY',
+        'yfinance': 'SMH',
+        'interval': default_interval_yahoo,
+        'market_hours': {
+            'start': '00:00',
+            'end': '23:59',
+            'timezone': 'UTC'
+        }
+    },
+    'XOP': {
+        'name': 'SPDR S&P Oil & Gas Exploration & Production ETF',
+        'market': 'US_EQUITY',
+        'yfinance': 'XOP',
         'interval': default_interval_yahoo,
         'market_hours': {
             'start': '00:00',
@@ -295,10 +485,6 @@ TRADING_SYMBOLS = {
         }
     }
 }
-
-
-
-
 
 # Trading costs configuration
 TRADING_COSTS = {
