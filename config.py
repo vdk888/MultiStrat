@@ -151,28 +151,8 @@ TRADING_SYMBOLS = {
             'timezone': 'UTC'
         }
     },
-    'OEF': {
-        'name': 'iShares S&P 100 ETF',
-        'market': 'US_EQUITY',
-        'yfinance': 'OEF',
-        'interval': default_interval_yahoo,
-        'market_hours': {
-            'start': '00:00',
-            'end': '23:59',
-            'timezone': 'UTC'
-        }
-    },
-    'VB': {
-        'name': 'Vanguard Small-Cap ETF',
-        'market': 'US_EQUITY',
-        'yfinance': 'VB',
-        'interval': default_interval_yahoo,
-        'market_hours': {
-            'start': '00:00',
-            'end': '23:59',
-            'timezone': 'UTC'
-        }
-    },
+   
+    
     'VO': {
         'name': 'Vanguard Mid-Cap ETF',
         'market': 'US_EQUITY',
@@ -195,18 +175,6 @@ TRADING_SYMBOLS = {
             'timezone': 'UTC'
         }
     },
-    'ESGU': {
-        'name': 'iShares ESG Aware MSCI USA ETF',
-        'market': 'US_EQUITY',
-        'yfinance': 'ESGU',
-        'interval': default_interval_yahoo,
-        'market_hours': {
-            'start': '00:00',
-            'end': '23:59',
-            'timezone': 'UTC'
-        }
-    },
-
     # Group 2: US Equity Styles
     'VUG': {
         'name': 'Vanguard Growth ETF',
@@ -285,17 +253,7 @@ TRADING_SYMBOLS = {
             'timezone': 'UTC'
         }
     },
-    'IWO': {
-        'name': 'iShares Russell 2000 Growth ETF',
-        'market': 'US_EQUITY',
-        'yfinance': 'IWO',
-        'interval': default_interval_yahoo,
-        'market_hours': {
-            'start': '00:00',
-            'end': '23:59',
-            'timezone': 'UTC'
-        }
-    },
+    
     'IWN': {
         'name': 'iShares Russell 2000 Value ETF',
         'market': 'US_EQUITY',
@@ -329,17 +287,7 @@ TRADING_SYMBOLS = {
             'timezone': 'UTC'
         }
     },
-    'MGK': {
-        'name': 'Vanguard Mega Cap Growth ETF',
-        'market': 'US_EQUITY',
-        'yfinance': 'MGK',
-        'interval': default_interval_yahoo,
-        'market_hours': {
-            'start': '00:00',
-            'end': '23:59',
-            'timezone': 'UTC'
-        }
-    },
+   
 
     # Group 3: US Sector ETFs
     'XLF': {
