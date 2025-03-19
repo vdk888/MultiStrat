@@ -5,6 +5,7 @@ from typing import Optional
 from config import TRADING_SYMBOLS, DEFAULT_INTERVAL, DEFAULT_INTERVAL_WEEKLY, default_interval_yahoo
 import logging
 import pytz
+from config import lookback_days_param
 
 logger = logging.getLogger(__name__)
 
@@ -86,7 +87,7 @@ def get_latest_data(symbol: str, interval: str = default_interval_yahoo, limit: 
     
     try:
         # Fetch at least 3 days of data for proper weekly signal calculation
-        df = fetch_historical_data(symbol, config_interval, days=3)
+        df = fetch_historical_data(symbol, config_interval, days=lookback_days_param)
         
         # Filter for market hours
         market_hours = TRADING_SYMBOLS[symbol]['market_hours']
@@ -105,7 +106,7 @@ def get_latest_data(symbol: str, interval: str = default_interval_yahoo, limit: 
             df = df[
                 (df.index.time >= start_time) & 
                 (df.index.time <= end_time) &
-                (df.index.weekday < 5)  # Monday = 0, Friday = 4
+                (df.index.weekday < 8)  # Monday = 0, Friday = 4
             ]
         
         # Apply limit if specified
