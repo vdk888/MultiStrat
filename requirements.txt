@@ -12,4 +12,3 @@ requests
 telegram
 replit-object-storage
 streamlit
-replit

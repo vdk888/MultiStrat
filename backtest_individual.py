@@ -107,22 +107,29 @@ def find_best_params(symbol: str,
                      days: int = default_backtest_interval,
                      output_file: str = "best_params.json") -> dict:
     """Find the best parameter set by running a backtest for each combination."""
-    from object_storage import ObjectStorageManager
+    from replit.object_storage import Client
     
-    # Initialize Object Storage Manager
-    storage_manager = ObjectStorageManager()
+    # Initialize Object Storage client
+    client = Client()
     param_names = list(param_grid.keys())
     param_values = [param_grid[name] for name in param_names]
 
     # Load existing data to check the last update date
-    existing_data = storage_manager.load_from_storage(output_file) or {}
-    
-    # If not found in Object Storage, try local file as fallback
-    if not existing_data:
+    existing_data = {}
+    try:
+        # Try to get the file from Object Storage
+        json_content = client.download_as_text(output_file)
+        existing_data = json.loads(json_content)
+        print(f"Successfully loaded {output_file} from Object Storage")
+    except Exception as e:
+        print(f"File not found in Object Storage or error reading: {e}")
+        # Try local file as fallback
         try:
-            existing_data = storage_manager.load_backup_from_file(output_file) or {}
-        except Exception as e:
-            logger.warning(f"Could not load backup from file: {e}")
+            with open(output_file, "r") as f:
+                existing_data = json.load(f)
+                print(f"Loaded {output_file} from local filesystem")
+        except FileNotFoundError:
+            print(f"Creating new {output_file} as it doesn't exist")
             existing_data = {}
 
     # Check if the current symbol exists in the JSON data
@@ -198,21 +205,52 @@ def find_best_params(symbol: str,
 
     # Save best parameters and metrics to JSON
     if output_file:
-        # Create metrics dictionary with additional performance info
-        metrics = {
-            **best_metrics,
+        from replit.object_storage import Client
+        
+        # Initialize Object Storage client
+        client = Client()
+        
+        # Create or update history
+        history = []
+        if symbol in existing_data:
+            # Check if the symbol has all required fields before updating history
+            required_fields = ['best_params', 'metrics', 'date']
+            if all(field in existing_data[symbol] for field in required_fields):
+                # Get existing history or create new one
+                if 'history' in existing_data[symbol]:
+                    history = existing_data[symbol]['history']
+                
+                # Append current best params to history
+                history.append({
+                    'params': existing_data[symbol]['best_params'],
+                    'metrics': existing_data[symbol]['metrics'],
+                    'date': existing_data[symbol]['date']
+                })
+            else:
+                print(f"Warning: Symbol {symbol} exists but is missing required fields for history update.")
+
+        # Update the symbol data with new best params and include history
+        existing_data[symbol] = {
+            'best_params': best_params,
+            'metrics': best_metrics,
             'performance_summary': {
                 'max_performance': max_performance,
                 'min_performance': min_performance,
                 'avg_performance': avg_performance,
-            }
+            },
+            'date': datetime.now().strftime("%Y-%m-%d"),  # Add current date
+            'history': history  # Include the history
         }
+
+        # Write updated data to Object Storage
+        client.upload_from_text(output_file, json.dumps(existing_data, indent=4))
         
-        # Use the storage manager to save the best params
-        storage_manager.save_best_params(symbol, best_params, metrics)
-        
-        # Also save a backup to local file
-        storage_manager.save_backup_to_file(output_file)
+        # Also save to local file as a backup
+        try:
+            with open(output_file, "w") as f:
+                json.dump(existing_data, f, indent=4)
+        except Exception as e:
+            print(f"Warning: Could not save to local file: {e}")
 
     print(f"Best params and metrics for {symbol} saved to Object Storage and local file")
     return best_params
