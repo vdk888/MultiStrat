@@ -1,7 +1,7 @@
 
 run = "python run_market_hours.py"
 language = "python3"
-modules = ["nix", "postgresql-16", "python-3.11"]
+modules = ["python-3.12", "nix", "postgresql-16"]
 
 [deployment]
 run = ["sh", "-c", "python run_market_hours.py"]
