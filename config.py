@@ -118,17 +118,7 @@ TRADING_SYMBOLS = {
             'timezone': 'UTC'
         }
     },
-    'VTI': {
-        'name': 'Vanguard Total Stock Market ETF',
-        'market': 'US_EQUITY',
-        'yfinance': 'VTI',
-        'interval': default_interval_yahoo,
-        'market_hours': {
-            'start': '00:00',
-            'end': '23:59',
-            'timezone': 'UTC'
-        }
-    },
+  
     'RSP': {
         'name': 'Invesco S&P 500 Equal Weight ETF',
         'market': 'US_EQUITY',
@@ -153,17 +143,6 @@ TRADING_SYMBOLS = {
     },
    
     
-    'VO': {
-        'name': 'Vanguard Mid-Cap ETF',
-        'market': 'US_EQUITY',
-        'yfinance': 'VO',
-        'interval': default_interval_yahoo,
-        'market_hours': {
-            'start': '00:00',
-            'end': '23:59',
-            'timezone': 'UTC'
-        }
-    },
     'MAGS': {
         'name': 'Roundhill Magnificent Seven ETF',
         'market': 'US_EQUITY',
@@ -209,17 +188,7 @@ TRADING_SYMBOLS = {
             'timezone': 'UTC'
         }
     },
-    'SPHQ': {
-        'name': 'Invesco S&P 500 Quality ETF',
-        'market': 'US_EQUITY',
-        'yfinance': 'SPHQ',
-        'interval': default_interval_yahoo,
-        'market_hours': {
-            'start': '00:00',
-            'end': '23:59',
-            'timezone': 'UTC'
-        }
-    },
+    
     'MOAT': {
         'name': 'VanEck Morningstar Wide Moat ETF',
         'market': 'US_EQUITY',
@@ -231,17 +200,7 @@ TRADING_SYMBOLS = {
             'timezone': 'UTC'
         }
     },
-    'SPMO': {
-        'name': 'Invesco S&P 500 Momentum ETF',
-        'market': 'US_EQUITY',
-        'yfinance': 'SPMO',
-        'interval': default_interval_yahoo,
-        'market_hours': {
-            'start': '00:00',
-            'end': '23:59',
-            'timezone': 'UTC'
-        }
-    },
+    
     'COWZ': {
         'name': 'Pacer US Cash Cows 100 ETF',
         'market': 'US_EQUITY',
@@ -276,17 +235,7 @@ TRADING_SYMBOLS = {
             'timezone': 'UTC'
         }
     },
-    'VOT': {
-        'name': 'Vanguard Mid-Cap Growth ETF',
-        'market': 'US_EQUITY',
-        'yfinance': 'VOT',
-        'interval': default_interval_yahoo,
-        'market_hours': {
-            'start': '00:00',
-            'end': '23:59',
-            'timezone': 'UTC'
-        }
-    },
+   
    
 
     # Group 3: US Sector ETFs
