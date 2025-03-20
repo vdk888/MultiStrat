@@ -6,59 +6,64 @@ from config import TRADING_SYMBOLS, DEFAULT_INTERVAL, DEFAULT_INTERVAL_WEEKLY, d
 import logging
 import pytz
 from config import lookback_days_param
+import time
+from functools import lru_cache
+from ratelimit import limits, sleep_and_retry
 
 logger = logging.getLogger(__name__)
 
+# Yahoo Finance has a rate limit of approximately 2000 requests per hour per IP
+# We'll be conservative and use 1800 requests per hour (1 request every 2 seconds)
+CALLS_PER_HOUR = 1800
+PERIOD = 3600  # 1 hour in seconds
+MIN_INTERVAL = PERIOD / CALLS_PER_HOUR  # Minimum interval between requests
+
+@sleep_and_retry
+@limits(calls=CALLS_PER_HOUR, period=PERIOD)
+@lru_cache(maxsize=100)
+def _fetch_yahoo_data(symbol: str, start: datetime, end: datetime, interval: str) -> pd.DataFrame:
+    """
+    Rate-limited and cached function to fetch data from Yahoo Finance
+    """
+    ticker = yf.Ticker(symbol)
+    return ticker.history(start=start, end=end, interval=interval)
+
 def fetch_historical_data(symbol: str, interval: str = default_interval_yahoo, days: int = 3) -> pd.DataFrame:
     """
-    Fetch historical data from Yahoo Finance
-    
-    Args:
-        symbol: Stock symbol
-        interval: Data interval ('1m', '5m', '15m', '30m', '60m', '1d')
-        days: Number of days of historical data to fetch (default: 3)
-    
-    Returns:
-        DataFrame with OHLCV data
+    Fetch historical data from Yahoo Finance with rate limiting and caching
     """
-    # Get the correct Yahoo Finance symbol
     yf_symbol = TRADING_SYMBOLS[symbol]['yfinance']
-    ticker = yf.Ticker(yf_symbol)
-    
-    # Calculate start and end dates
     end = datetime.now(pytz.UTC)
     start = end - timedelta(days=days)
     
-    # Debug logging
     logger.debug(f"Attempting to fetch {interval} data for {symbol} ({yf_symbol})")
-    logger.debug(f"Date range: {start} to {end}")
-    logger.debug(f"Requested days: {days}")
     
-    # Fetch data with retry mechanism
+    # Use exponential backoff for retries
     max_retries = 3
+    backoff_factor = 2
     for attempt in range(max_retries):
         try:
-            df = ticker.history(start=start, end=end, interval=interval)
-            logger.debug(f"Successfully fetched {len(df)} bars of {interval} data")
+            df = _fetch_yahoo_data(yf_symbol, start, end, interval)
             if not df.empty:
                 break
         except Exception as e:
-            logger.error(f"Attempt {attempt + 1} failed: {str(e)}")
+            wait_time = (backoff_factor ** attempt) * MIN_INTERVAL
+            logger.warning(f"Attempt {attempt + 1} failed: {str(e)}. Waiting {wait_time:.1f}s before retry")
+            time.sleep(wait_time)
             if attempt == max_retries - 1:
-                logger.error(f"Failed to fetch data for {symbol} ({yf_symbol}): {str(e)}")
+                logger.error(f"Failed to fetch data for {symbol} after {max_retries} attempts")
                 raise e
             continue
-    
+
     if df.empty:
-        logger.error(f"No data available for {symbol} ({yf_symbol})")
         raise ValueError(f"No data available for {symbol} ({yf_symbol})")
-    
+
     # Ensure we have enough data
     min_required_bars = 700  # Minimum bars needed for weekly signals
     if len(df) < min_required_bars:
         logger.debug(f"Only {len(df)} bars found, fetching more data")
         start = end - timedelta(days=days + 2)
-        df = ticker.history(start=start, end=end, interval=interval)
+        df = _fetch_yahoo_data(yf_symbol, start, end, interval)
     
     # Clean and format the data
     df.columns = [col.lower() for col in df.columns]
@@ -106,7 +111,7 @@ def get_latest_data(symbol: str, interval: str = default_interval_yahoo, limit: 
             df = df[
                 (df.index.time >= start_time) & 
                 (df.index.time <= end_time) &
-                (df.index.weekday < 8)  # Monday = 0, Friday = 4
+                (df.index.weekday < 5)  # Monday = 0, Friday = 4
             ]
         
         # Apply limit if specified
