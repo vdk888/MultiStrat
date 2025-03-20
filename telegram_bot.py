@@ -172,6 +172,7 @@ class TradingBot:
 /balance - Check account balance
 /performance - View today's performance
 /rank - View performance ranking of all assets
+/orders [symbol] [limit] - View past orders (all orders if no symbol specified)
 
 📈 Analysis Commands:
 /indicators [symbol] - View current indicator values
